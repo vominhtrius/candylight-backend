@@ -21,7 +21,7 @@
 [swagger](https://www.npmjs.com/package/swagger)
 
 
-### II. How to build MongoDB on linux
+### II. How to build MongoDB on ubuntu
 #### 1. Install MongoDB Community Edition 
 
 - Link tham khảo:
@@ -64,3 +64,19 @@
 
 [mongodb](https://www.npmjs.com/package/mongodb)
 
+### III. How to build Redis server on ubuntu
+#### 1. Redis Quick Start
+
+- Link tham khảo:
+
+[Redis Quick Start](https://redis.io/topics/quickstart)
+
+[How To Install and Secure Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04)
+
+#### 2. Install Redis use npm
+
+> npm install redis
+
+- Link tham khảo:
+
+[redis - a node.js redis client](https://www.npmjs.com/package/redis)
