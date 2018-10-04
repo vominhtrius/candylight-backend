@@ -15,3 +15,7 @@
 
 ### 5. Design your API in the Swagger Editor
 > $ swagger project edit
+
+### Link tham khảo:
+
+[swagger](https://www.npmjs.com/package/swagger)
