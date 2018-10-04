@@ -21,7 +21,7 @@
 [swagger](https://www.npmjs.com/package/swagger)
 
 
-### II. Build MongoDB on linux
+### II. How to build MongoDB on linux
 #### 1. Install MongoDB Community Edition 
 
 - Link tham khảo:
