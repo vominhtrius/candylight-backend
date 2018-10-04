@@ -55,3 +55,12 @@
 
 > sudo rm -r /var/log/mongodb
 > sudo rm -r /var/lib/mongodb
+
+##### 5.2 Install MongoDB use npm
+
+> npm install mongodb --save
+
+- Link tham khảo:
+
+[mongodb](https://www.npmjs.com/package/mongodb)
+
