@@ -53,7 +53,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: The user to sign in with username & password.
+          description: The user to sign up with username, password, firstname and lastname.
           schema:
             $ref: '#/definitions/UserSignup'     # <----------
       responses:
@@ -61,6 +61,53 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/SigninResponse"
+        "401":
+          description: Fail
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageReturn"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"       
+  /api/account/profile:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: accountController
+    get:
+      description: Returns 'Profile account' to the caller
+      # used as the method name of the controller
+      operationId: getInfo
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/InfoResponse"
+        "401":
+          description: Fail
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageReturn"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Profile account' to the caller
+      # used as the method name of the controller
+      operationId: updateInfo
+      parameters:
+        - in: body
+          name: body
+          description: The user to sign in with username & password.
+          schema:
+            $ref: '#/definitions/UserProfile'     # <----------
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/InfoResponse"
         "401":
           description: Fail
           schema:
@@ -100,6 +147,25 @@ definitions:
         type: string
       lastName: 
         type: string
+  UserProfile:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName: 
+        type: string
+      region:
+        type: string
+      school:
+        type: string
+      capacity:
+        type: string
+      fNameParent: 
+        type: string
+      lNameParent:
+        type: string
+      emailParent: 
+        type: string
   SigninResponse:
     required:
       - access_token
@@ -109,6 +175,34 @@ definitions:
         type: string
       refesh_token:
         type: string
+  InfoResponse: 
+    type: object
+    properties:
+      profile: 
+        type: object
+        properties:
+          userId:
+            type: string
+          userName:
+            type: string
+          pointReward:
+            type: integer
+          firstName:
+            type: string
+          lastName:
+            type: string
+          region:
+            type: string
+          school:
+            type: string
+          capacity:
+            type: string    
+          fNameParent:
+            type: string
+          lNameParent:
+            type: string
+          emailParent:
+            type: string  
   MessageReturn:
     type: object
     required: 
