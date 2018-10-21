@@ -1,12 +1,18 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: Quan Ly Du An Phan Men
 # during dev, should point to your local machine
 host: localhost:8001
 # basePath prefixes all resource paths 
-basePath: /
+basePath: /api
 # 
+securityDefinitions:
+  auth0:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "Authorization logged to application"
 schemes:
   # tip: remove http to make production-grade
   - http
@@ -15,69 +21,78 @@ schemes:
 consumes:
   - application/json
 # format of the responses to the client (Accepts)
+tags:
+- name: "account"
+  description: "Everything about authorization your account"
+  externalDocs:
+    description: "Find out more"
+    url: "http://swagger.io"
+- name: "profile"
+  description: "Operations about profile user"
 produces:
   - application/json
 paths:
-  /api/account:
-    # binds a127 app logic to a route
+  /account:
     x-swagger-router-controller: accountController
     post:
-      description: Returns 'SignIn' to the caller
-      # used as the method name of the controller
+      tags:
+        - account
+      description: user sign-in account to application
       operationId: signin
       parameters:
         - in: body
           name: body
-          description: The user to sign in with username & password.
+          description: parameters with username & password.
           schema:
             $ref: '#/definitions/UserSignin'     # <----------
       responses:
         "200":
-          description: Success
+          description: Login Success
           schema:
-            $ref: "#/definitions/SigninResponse"
-        "401":
-          description: Fail
-          schema:
-            # a pointer to a definition
             $ref: "#/definitions/MessageReturn"
-        # responses may fall through to errors
+        "401":
+          description: Login Fail
+          schema:
+            $ref: "#/definitions/MessageReturn"
         default:
-          description: Error
+          description: Login Error
           schema:
             $ref: "#/definitions/ErrorResponse"
     put:
-      description: Returns 'SignUp' to the caller
-      # used as the method name of the controller
-      operationId: singup
+      description: user sign-up account to application
+      operationId: signup
+      tags:
+        - account
       parameters:
         - in: body
           name: body
-          description: The user to sign up with username, password, firstname and lastname.
+          description: parameters with username, password, firstname and lastname.
           schema:
-            $ref: '#/definitions/UserSignup'     # <----------
+            $ref: '#/definitions/UserSignup'
       responses:
         "200":
-          description: Success
+          description: Sign-up Success
           schema:
-            $ref: "#/definitions/SigninResponse"
-        "401":
-          description: Fail
-          schema:
-            # a pointer to a definition
             $ref: "#/definitions/MessageReturn"
-        # responses may fall through to errors
+        "401":
+          description: Sign-up Fail
+          schema:
+            $ref: "#/definitions/MessageReturn"
         default:
-          description: Error
+          description: Sign-up Error
           schema:
             $ref: "#/definitions/ErrorResponse"       
-  /api/account/profile:
+  /account/profile:
     # binds a127 app logic to a route
     x-swagger-router-controller: accountController
     get:
       description: Returns 'Profile account' to the caller
       # used as the method name of the controller
       operationId: getInfo
+      tags:
+        - profile
+      security:
+      - auth0: []
       responses:
         "200":
           description: Success
@@ -96,7 +111,11 @@ paths:
     post:
       description: Returns 'Profile account' to the caller
       # used as the method name of the controller
+      tags:
+        - profile
       operationId: updateInfo
+      security:
+        - auth0: []
       parameters:
         - in: body
           name: body
@@ -117,12 +136,8 @@ paths:
         default:
           description: Error
           schema:
-            $ref: "#/definitions/ErrorResponse"       
-  /swagger:
-    x-swagger-pipe: swagger_raw
-# complex objects have schema definitions
+            $ref: "#/definitions/ErrorResponse"    
 definitions:
-  
   UserSignin:
     type: object
     required:
@@ -138,6 +153,8 @@ definitions:
     required:
       - username
       - password
+      - firstName
+      - lastName
     properties:
       username:
         type: string
@@ -166,18 +183,11 @@ definitions:
         type: string
       emailParent: 
         type: string
-  SigninResponse:
-    required:
-      - access_token
-      - refesh_token
-    properties:
-      access_token:
-        type: string
-      refesh_token:
-        type: string
   InfoResponse: 
     type: object
     properties:
+      success: 
+        type: boolean
       profile: 
         type: object
         properties:
@@ -210,9 +220,11 @@ definitions:
       - message
     properties:
       success:
-        type: string
+        type: boolean
       message:
         type: string
+      value:
+        type: object
   ErrorResponse:
     required:
       - message
