@@ -25,6 +25,8 @@ paths:
       description: Returns 'SignIn' to the caller
       # used as the method name of the controller
       operationId: signin
+      tags:
+        - accountController
       parameters:
         - in: body
           name: body
@@ -50,6 +52,8 @@ paths:
       description: Returns 'SignUp' to the caller
       # used as the method name of the controller
       operationId: singup
+      tags:
+        - accountController
       parameters:
         - in: body
           name: body

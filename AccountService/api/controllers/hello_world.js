@@ -9,8 +9,6 @@ function hello(req, res) {
 
   res.json(hello);
 }
-
-
 module.exports = {
   hello: hello
 };
