@@ -3,72 +3,162 @@
 var util = require("util");
 var jwt = require('jsonwebtoken') 
 const config = require('./config')
+const db = require('../../fn/mongo')
+const uuidv1 = require('uuid/v1');
+var ObjectId = require('mongodb').ObjectID;
+
 
 //Singin user
 function signin(req, res) {
   var body = req.swagger.params.body;
   var userName = body.value.username;
   var passWord = body.value.password;
-
-  if(passWord !== "1"){
-
-    res.status(401);
-    res.json({success: 'Fail', message: 'Invaild username or password'});
+  if(userName === "") {
+    res.json({success: false, message: 'Missing username'});
     return;
   }
-
+  if(passWord === "") {
+    res.json({success: false, message: 'Missing password'});
+    return;
+  }
   var user = {
       username: userName, 
       password: passWord
   };
-  const accessToken = jwt.sign(user, config.secret, { expiresIn: config.tokenLife }) 
-  const refreshToken = jwt.sign(user, config.refreshTokenSecret, { expiresIn: config.refreshTokenLife }) 
-  res.status(200);
-  res.json({access_token: accessToken, refesh_token: refreshToken});
+  console.log(user);
+  db.findOne(user, (value) => {
+    if(value == null){
+      res.status(401);
+      res.json({success: false, message: 'Invaild username or password'});
+    } else {
+      const accessToken = jwt.sign({userId: value._id}, config.secret, { expiresIn: config.tokenLife }) 
+      res.status(200);
+      
+      res.json({ 
+        success: true,
+        message: "", 
+        value:{ access_token: accessToken, profile: value}
+      });
+    }
+  });
 }
 
 //Sign up user
 function signup(req, res) {
+
   var body = req.swagger.params.body;
   var userName = body.value.username;
   var passWord = body.value.password;
   var firstName = body.value.firstName;
   var lastName = body.value.lastName;
-
-
+  if(userName === "") {
+    res.json({success: false, message: 'Missing username'});
+    return;
+  }
+  if(passWord === "") {
+    res.json({success: false, message: 'Missing password'});
+    return;
+  }
+  if(firstName === "") {
+    res.json({success: false, message: 'Missing firstname'});
+    return;
+  }
+  if(lastName === "") {
+    res.json({success: false, message: 'Missing lastname'});
+    return;
+  }
   var user = {
     username: userName, 
     password: passWord,
     firstName: firstName,
-    lastName: lastName
+    lastName: lastName,
+    region: "",
+    school: "",
+    capacity: "",
+    fNameParent: "",
+    lNameParent: "",
+    emailParent: "",
+    pointReward: 0,
   };
-
-  
-  const accessToken = jwt.sign(user, config.secret, { expiresIn: config.tokenLife }) 
-  const refreshToken = jwt.sign(user, config.refreshTokenSecret, { expiresIn: config.refreshTokenLife }) 
-  res.status(200);
-  res.json({access_token: accessToken, refesh_token: refreshToken});
+  //console.log(user);
+  db.insert(user, (err, result) => {
+    if(err){
+      var mess = "";
+      if(err.code === 11000) {
+        mess = "Username already exists";
+      } else {
+        mess = "Error undefine, StatusCode: " + err.code;
+      }
+      res.status(401);
+      res.json({success: false, message: mess});
+      console.log("OK send");
+    } else {
+      const accessToken = jwt.sign({ userId: user._id}, config.secret, { expiresIn: config.tokenLife }) 
+      res.status(200);
+      res.json({ 
+        success: true,
+        message: "", 
+        value:{ access_token: accessToken, profile: user}
+      });
+    }
+  });
 }
 
 //update info user
 function updateInfo(req, res) {
+
+  var userId = req.userId;
+  if(!userId) {
+    res.status(403);
+    res.json({success: false, message: 'access denied'});
+    return;
+  }
+
   var body = req.swagger.params.body;
-  var userId = '1223456'
-  var userName = 'tuan'
-  var pointReward = 0
+
   var firstName = body.value.firstName;
   var lastName = body.value.lastName;
   var region = body.value.region;
   var school = body.value.school;
   var capacity = body.value.capacity;
-  var fNameParent = body.value.firstNameParent;
-  var lNameParent = body.value.lastNameParent;
+  var fNameParent = body.value.fNameParent;
+  var lNameParent = body.value.lNameParent;
   var emailParent = body.value.emailParent;
   
-  
-  var userInfo = {
-    userId: userId,
-    userName: userName, 
+  if(firstName == "") {
+    res.json({success: false, message: 'Missing firstName'});
+    return;
+  }
+  if(lastName == "") {
+    res.json({success: false, message: 'Missing lastName'});
+    return;
+  }
+  if(region == "") {
+    res.json({success: false, message: 'Missing region'});
+    return;
+  }
+  if(school == "") {
+    res.json({success: false, message: 'Missing school'});
+    return;
+  }
+  if(capacity == "") {
+    res.json({success: false, message: 'Missing capacity'});
+    return;
+  }
+  if(fNameParent == "") {
+    res.json({success: false, message: 'Missing First Name Parent'});
+    return;
+  }
+  if(lNameParent == "") {
+    res.json({success: false, message: 'Missing Last Name Parent'});
+    return;
+  }
+  if(emailParent == "") {
+    res.json({success: false, message: 'Missing Email Parent'});
+    return;
+  }
+
+  var userProfile = {
     firstName: firstName,
     lastName: lastName,
     region: region,
@@ -76,54 +166,47 @@ function updateInfo(req, res) {
     capacity: capacity,
     fNameParent: fNameParent,
     lNameParent: lNameParent,
-    pointReward: pointReward,
     emailParent: emailParent
   };
-
-
+  console.log(userProfile);
+  db.update({"_id": new ObjectId(userId)}, userProfile, (err, result) => {
+    if(err){
+      console.log(err);
+      res.status(401);
+      res.json({success: false, message: ""});
+      console.log("OK send");
+    } else {
+      res.status(200);
+      res.json({ 
+        success: true,
+        profile: userProfile
+      });
+    }
+  });
   
-  res.status(200);
-  res.json({success:'OK', profile: userInfo});
 }
 
 //get info user
 function getInfo(req, res) {
-  var userId = '1223456'
-  var userName = 'tuanna'
-  //var passWord = '123456'
-  var firstName = 'tuan'
-  var lastName = 'nguyen'
-  var region = 'HCM'
-  var school = 'HCMUS'
-  var capacity = 'Kha'
-  var fNameParent = 'A'
-  var lNameParent = 'Nguyen'
-  var pointReward = 0
-  var emailParent = 'bnguyen@gmail.com'
   
-  
-  
-  var userInfo = {
-    userId: userId,
-    userName: userName, 
-    firstName: firstName,
-    lastName: lastName,
-    region: region,
-    school: school,
-    capacity: capacity,
-    fNameParent: fNameParent,
-    lNameParent: lNameParent,
-    pointReward: pointReward,
-    emailParent: emailParent
-  };
-
-  // var user = {
-  //   username: userName, 
-  //   password: passWord,
-  // };
-  
-  res.status(200);
-  res.json({profile: userInfo});
+  var userId = req.userId;
+  if(userId) {
+    db.findOne({"_id": new ObjectId(userId)}, (value) => {
+      if(value == null){
+        res.status(401);
+        res.json({success: false, message: 'User not found'});
+      } else {
+        res.status(200);
+        res.json({ 
+          success: true,
+          profile: value
+        });
+      }
+    });
+  } else {
+    res.status(403);
+    res.json({success: false, message: 'access denied'});
+  }
 }
 module.exports = {
   signin: signin,
