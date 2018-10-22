@@ -2,10 +2,12 @@
 
 Setting
 ---
-## URL connect: 
-    ### mongodb://103.114.107.16:27017/qlpm
+## URL connect MongoDB: 
+    mongodb://103.114.107.16:27017/qlpm
 ## Document api swagger:
-    ### http://103.114.107.16:8001/api-docs/
+    [http://103.114.107.16:8001/api-docs/](http://103.114.107.16:8001/api-docs/)
+    
+ 
 Tutorial
 ---
 ## I. How to build Sever swagger 
