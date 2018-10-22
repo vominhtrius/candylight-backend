@@ -110,3 +110,14 @@ Tutorial
 - Link tham khảo:
 
 [redis - a node.js redis client](https://www.npmjs.com/package/redis)
+
+### V. Open port MongoDB in Window Server 2012
+
+#### 1. Open port in firewall
+> netsh a f a r n="Open Port 22" d=in a=allow prot=TCP localp=27017
+
+#### 2. Run MongoDB
+
+> mongod --bind_ip 0.0.0.0
+
+
