@@ -1,5 +1,13 @@
 # candylight-backend
 
+Setting
+---
+## URL connect: 
+    ### mongodb://103.114.107.16:27017/qlpm
+## Document api swagger:
+    ### http://103.114.107.16:8001/api-docs/
+Tutorial
+---
 ## I. How to build Sever swagger 
 ### 1. Install the swagger module
 > $ npm install -g swagger
@@ -84,7 +92,7 @@
 
 [mongodb](https://www.npmjs.com/package/mongodb)
 
-### III. How to build Redis server on ubuntu
+### IV. How to build Redis server on ubuntu
 #### 1. Redis Quick Start
 
 - Link tham khảo:
