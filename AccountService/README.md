@@ -114,7 +114,7 @@ Tutorial
 ### V. Open port MongoDB in Window Server 2012
 
 #### 1. Open port in firewall
-> netsh a f a r n="Open Port 22" d=in a=allow prot=TCP localp=27017
+> netsh a f a r n="Open Port 27017 MongoDB" d=in a=allow prot=TCP localp=27017
 
 #### 2. Run MongoDB
 
