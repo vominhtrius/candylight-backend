@@ -2,8 +2,8 @@ const hostService = require('../../config/config-router.js');
 
 
 module.exports = function(app, apiProxy){
-    app.all("/account", function(req, res) {
-        console.log('redirecting to Server1');
+    app.all("/api/account*", function(req, res) {
+        console.log(req.method + " " + req.url);
         apiProxy.web(req, res, {target: hostService.hostAccountService});
     });    
 }
