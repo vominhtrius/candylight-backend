@@ -335,6 +335,7 @@ function signup(req, res) {
       }, config.secret, {
         expiresIn: config.tokenLife
       })
+
       user.password = null;
       res.status(200);
       res.json({
@@ -446,6 +447,14 @@ function updateInfo(req, res) {
     });
     return;
   }
+  if(phoneParent == "") {
+    res.json({success: false, message: 'Missing Phone Parent'});
+    return;
+  }
+  if(regionParent == "") {
+    res.json({success: false, message: 'Missing Region Parent'});
+    return;
+  }
 
   var userProfile = {
     firstName: firstName,
@@ -468,6 +477,7 @@ function updateInfo(req, res) {
         success: false,
         message: 'User not found'
       });
+
     } else {
       value.firstName = firstName;
       value.lastName = lastName,
@@ -501,7 +511,6 @@ function updateInfo(req, res) {
       });
     }
   });
-
 
 }
 
