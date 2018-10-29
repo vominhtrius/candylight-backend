@@ -4,7 +4,7 @@ var util = require("util");
 var jwt = require('jsonwebtoken') 
 const config = require('./config')
 const db = require('../../fn/mongo')
-const uuidv1 = require('uuid/v1');
+const md5 = require('md5')
 var ObjectId = require('mongodb').ObjectID;
 
 
@@ -23,7 +23,7 @@ function signin(req, res) {
   }
   var user = {
       username: userName, 
-      password: passWord
+      password: md5(passWord)
   };
   console.log(user);
   db.findOne(user, (value) => {
@@ -32,8 +32,8 @@ function signin(req, res) {
       res.json({success: false, message: 'Invaild username or password'});
     } else {
       const accessToken = jwt.sign({userId: value._id}, config.secret, { expiresIn: config.tokenLife }) 
+      value.password = null;
       res.status(200);
-      
       res.json({ 
         success: true,
         message: "", 
@@ -48,36 +48,40 @@ function signup(req, res) {
 
   var body = req.swagger.params.body;
   var userName = body.value.username;
-  var passWord = body.value.password;
-  var firstName = body.value.firstName;
-  var lastName = body.value.lastName;
+  var password = body.value.password;
+  var rePassword = body.value.rePassword;
+  var email = body.value.email;
+
   if(userName === "") {
     res.json({success: false, message: 'Missing username'});
     return;
   }
-  if(passWord === "") {
+  if(password === "") {
     res.json({success: false, message: 'Missing password'});
     return;
   }
-  if(firstName === "") {
-    res.json({success: false, message: 'Missing firstname'});
+  if(password !== rePassword) {
+    res.json({success: false, message: 'Password and Re-enter password not match'});
     return;
   }
-  if(lastName === "") {
-    res.json({success: false, message: 'Missing lastname'});
+  if(email === "") {
+    res.json({success: false, message: 'Missing email'});
     return;
   }
   var user = {
-    username: userName, 
-    password: passWord,
-    firstName: firstName,
-    lastName: lastName,
+    username: userName,
+    password: md5(password),
+    email: email,
+    firstName: "",
+    lastName: "",
     region: "",
     school: "",
     capacity: "",
-    fNameParent: "",
-    lNameParent: "",
+    firstNameParent: "",
+    lastNameParent: "",
     emailParent: "",
+    phoneParent: "",
+    regionParent: "",
     pointReward: 0,
   };
   //console.log(user);
@@ -94,6 +98,7 @@ function signup(req, res) {
       console.log("OK send");
     } else {
       const accessToken = jwt.sign({ userId: user._id}, config.secret, { expiresIn: config.tokenLife }) 
+      user.password = null;
       res.status(200);
       res.json({ 
         success: true,
@@ -120,10 +125,13 @@ function updateInfo(req, res) {
   var lastName = body.value.lastName;
   var region = body.value.region;
   var school = body.value.school;
-  var capacity = body.value.capacity;
-  var fNameParent = body.value.fNameParent;
-  var lNameParent = body.value.lNameParent;
+  var capacity = body.value.capacity; //hoc luc
+  var fNameParent = body.value.firstNameParent;
+  var lNameParent = body.value.lastNameParent;
   var emailParent = body.value.emailParent;
+  var phoneParent = body.value.phoneParent;
+  var regionParent = body.value.regionParent;
+
   
   if(firstName == "") {
     res.json({success: false, message: 'Missing firstName'});
@@ -157,6 +165,14 @@ function updateInfo(req, res) {
     res.json({success: false, message: 'Missing Email Parent'});
     return;
   }
+  if(phoneParent == "") {
+    res.json({success: false, message: 'Missing Phone Parent'});
+    return;
+  }
+  if(regionParent == "") {
+    res.json({success: false, message: 'Missing Region Parent'});
+    return;
+  }
 
   var userProfile = {
     firstName: firstName,
@@ -164,25 +180,46 @@ function updateInfo(req, res) {
     region: region,
     school: school,
     capacity: capacity,
-    fNameParent: fNameParent,
-    lNameParent: lNameParent,
-    emailParent: emailParent
+    firstNameParent: fNameParent,
+    lastNameParent: lNameParent,
+    emailParent: emailParent,
+    phoneParent: phoneParent,
+    regionParent: regionParent
   };
-  console.log(userProfile);
-  db.update({"_id": new ObjectId(userId)}, userProfile, (err, result) => {
-    if(err){
-      console.log(err);
+  db.findOne({"_id": new ObjectId(userId)}, (value) => {
+    if(value == null){
       res.status(401);
-      res.json({success: false, message: ""});
-      console.log("OK send");
+      res.json({success: false, message: 'User not found'});
     } else {
-      res.status(200);
-      res.json({ 
-        success: true,
-        profile: userProfile
+      value.firstName = firstName;
+      value.lastName = lastName,
+      value.region = region,
+      value.school = school,
+      value.capacity = capacity,
+      value.firstNameParent = fNameParent,
+      value.lastNameParent = lNameParent,
+      value.emailParent = emailParent,
+      value.phoneParent = phoneParent,
+      value.regionParent = regionParent
+      console.log("vallue updated: " + value);
+      db.update({"_id": new ObjectId(userId)}, value, (err, result) => {
+        if(err){
+          console.log(err);
+          res.status(401);
+          res.json({success: false, message: ""});
+          console.log("OK send");
+        } else {
+          value.password = null;
+          res.status(200);
+          res.json({ 
+            success: true,
+            profile: value
+          });
+        }
       });
     }
   });
+  
   
 }
 
@@ -196,6 +233,7 @@ function getInfo(req, res) {
         res.status(401);
         res.json({success: false, message: 'User not found'});
       } else {
+        value.password = null;
         res.status(200);
         res.json({ 
           success: true,
