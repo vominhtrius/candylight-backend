@@ -10,8 +10,10 @@
   "dependencies": {
     "express": "^4.12.3",
     "jsonwebtoken": "^8.3.0",
+    "md5": "^2.2.1",
     "mongodb": "^3.1.8",
     "nodemon": "^1.18.4",
+    "request": "^2.88.0",
     "swagger-express-mw": "^0.1.0",
     "swagger-ui-express": "^4.0.1",
     "uuid": "^3.3.2",
