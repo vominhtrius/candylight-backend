@@ -82,6 +82,58 @@ paths:
           description: Sign-up Error
           schema:
             $ref: "#/definitions/ErrorResponse"       
+  /account_facebook:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+        - account
+      description: user sign-in account to application by facebook
+      operationId: signinFB
+      parameters:
+        - in: body
+          name: body
+          description: parameters with access_token return when auth in client.
+          schema:
+            $ref: '#/definitions/UserSigninFB_GG'     # <----------
+      responses:
+        "200":
+          description: Login Success
+          schema:
+            $ref: "#/definitions/MessageReturn"
+        "401":
+          description: Login Fail
+          schema:
+            $ref: "#/definitions/MessageReturn"
+        default:
+          description: Login Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /account_google:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+        - account
+      description: user sign-in account to application by google
+      operationId: signinGoogle
+      parameters:
+        - in: body
+          name: body
+          description: parameters with access_token return when auth in client
+          schema:
+            $ref: '#/definitions/UserSigninFB_GG'     # <----------
+      responses:
+        "200":
+          description: Login Success
+          schema:
+            $ref: "#/definitions/MessageReturn"
+        "401":
+          description: Login Fail
+          schema:
+            $ref: "#/definitions/MessageReturn"
+        default:
+          description: Login Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
   /account/profile:
     # binds a127 app logic to a route
     x-swagger-router-controller: accountController
@@ -147,6 +199,13 @@ definitions:
       username:
         type: string
       password:
+        type: string
+  UserSigninFB_GG:
+    type: object
+    required:
+      - access_token
+    properties:
+      access_token:
         type: string
   UserSignup:
     type: object
