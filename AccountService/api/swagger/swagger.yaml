@@ -37,7 +37,7 @@ paths:
     post:
       tags:
         - account
-      description: user sign-in account to application
+      description: user sign-in account to application and return access_token to authenticate
       operationId: signin
       parameters:
         - in: body
@@ -59,14 +59,14 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
     put:
-      description: user sign-up account to application
+      description: user sign-up account to application and return access_token to authenticate
       operationId: signup
       tags:
         - account
       parameters:
         - in: body
           name: body
-          description: parameters with username, password, firstname and lastname.
+          description: parameters with username, password, rePassword and email.
           schema:
             $ref: '#/definitions/UserSignup'
       responses:
@@ -153,19 +153,30 @@ definitions:
     required:
       - username
       - password
-      - firstName
-      - lastName
+      - rePassword
+      - email
     properties:
       username:
         type: string
       password:
         type: string
-      firstName:
+      rePassword:
         type: string
-      lastName: 
+      email: 
         type: string
   UserProfile:
     type: object
+    required:
+      - firstName
+      - lastName
+      - region
+      - school
+      - capacity
+      - firstNameParent
+      - lastNameParent
+      - emailParent
+      - phoneParent
+      - regionParent
     properties:
       firstName:
         type: string
@@ -177,11 +188,15 @@ definitions:
         type: string
       capacity:
         type: string
-      fNameParent: 
+      firstNameParent: 
         type: string
-      lNameParent:
+      lastNameParent:
         type: string
       emailParent: 
+        type: string
+      phoneParent: 
+        type: string
+      regionParent: 
         type: string
   InfoResponse: 
     type: object
@@ -207,12 +222,16 @@ definitions:
             type: string
           capacity:
             type: string    
-          fNameParent:
+          firstNameParent:
             type: string
-          lNameParent:
+          lastNameParent:
             type: string
           emailParent:
-            type: string  
+            type: string 
+          phoneParent:
+            type: string 
+          regionParent:
+            type: string 
   MessageReturn:
     type: object
     required: 
