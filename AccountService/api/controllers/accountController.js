@@ -3,7 +3,7 @@
 var util = require("util");
 var jwt = require('jsonwebtoken')
 const config = require('./config')
-const db = require('../../fn/mongo')
+const accountRepo = require('../../repository/accountRepo')
 const md5 = require('md5')
 var ObjectId = require('mongodb').ObjectID;
 const request = require('request');
@@ -33,7 +33,7 @@ function signin(req, res) {
     password: md5(passWord)
   };
   console.log(user);
-  db.findOne(user, (value) => {
+  accountRepo.findOne(user, (value) => {
     if (value == null) {
       res.status(401);
       res.json({
@@ -90,11 +90,10 @@ function signinFB(req, res) {
       });
       return;
     }
-    // eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyODlkNTQyODBiNzY3MTJkZTQxY2QyZWY5NTk3MmIxMjNiZTlhYzAiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDMxMTY1MTYwMDM4NzkwNzAwNDUiLCJhdF9oYXNoIjoiU1VCdm9XM3JCazd0NmhqMnA4Rkh5dyIsIm5hbWUiOiJraW5nIGN1YSBubyIsInBpY3R1cmUiOiJodHRwczovL2xoNi5nb29nbGV1c2VyY29udGVudC5jb20vLXJaWnV3cE1qc01zL0FBQUFBQUFBQUFJL0FBQUFBQUFBQUFBL0FCdE5sYkNKOF9wRXdKaE5USjBKanFIWHoyV1c0LXo5ZkEvczk2LWMvcGhvdG8uanBnIiwiZ2l2ZW5fbmFtZSI6ImtpbmciLCJmYW1pbHlfbmFtZSI6ImN1YSBubyIsImxvY2FsZSI6ImVuIiwiaWF0IjoxNTQwODA3MjQ4LCJleHAiOjE1NDA4MTA4NDh9.UUU24CO4wPRdKVkEcWvZs35Hkp02YrUaHZ1So695VGqJC2SN3gYcJnt9TTiNfAtrArSwSuctvCEa6YPPEq3jnEPBeY_K1Hz3eZALdDMIjjY_wqmJYsvBJySxjPtancBdFtTsBj4adDcuPCWyBNMqXxxWjrKnSKzze3fLw1gWqbp1QsEnUoO__Lka8GTjKZLXzUL8l6cPatcUYZU_CRuSjiVhleAYxjYslGybNDd4L8mf7LmbGihOM1qQ3TykppZcXfT9yd9L2IrgDGFqHoGdjwZAQDFvkfEVGnOal_2CBHyizhLEn-mjPWvc8Kb8e8Muglv-vLXyL3Nka9rl4McBmg
-    db.findOne({
+    accountRepo.findOne({
       "username": userId
-    }, (value) => {
-      if (value == null) {
+    }, (value) => { //not exist userId in db -> create account
+      if (value == null) { 
         console.log("Create user");
         var user = {
           username: userId,
@@ -113,7 +112,7 @@ function signinFB(req, res) {
           pointReward: 0,
         };
         console.log("new user: " + user);
-        db.insert(user, (err, result) => {
+        accountRepo.insert(user, (err, result) => {
           if (err) {
             var mess = "";
             if (err.code === 11000) {
@@ -192,7 +191,7 @@ function signinGoogle(req, res) {
       });
       return;
     }
-    db.findOne({
+    accountRepo.findOne({
       "username": userId
     }, (value) => {
       if (value == null) {
@@ -214,7 +213,7 @@ function signinGoogle(req, res) {
           pointReward: 0,
         };
         console.log("new user: " + user);
-        db.insert(user, (err, result) => {
+        accountRepo.insert(user, (err, result) => {
           if (err) {
             var mess = "";
             if (err.code === 11000) {
@@ -315,7 +314,7 @@ function signup(req, res) {
     regionParent: "",
     pointReward: 0,
   };
-  db.insert(user, (err, result) => {
+  accountRepo.insert(user, (err, result) => {
     if (err) {
       var mess = "";
       if (err.code === 11000) {
@@ -468,7 +467,7 @@ function updateInfo(req, res) {
     phoneParent: phoneParent,
     regionParent: regionParent
   };
-  db.findOne({
+  accountRepo.findOne({
     "_id": new ObjectId(userId)
   }, (value) => {
     if (value == null) {
@@ -489,7 +488,7 @@ function updateInfo(req, res) {
       value.emailParent = emailParent,
       value.phoneParent = phoneParent,
       value.regionParent = regionParent
-      db.update({
+      accountRepo.update({
         "_id": new ObjectId(userId)
       }, value, (err, result) => {
         if (err) {
@@ -519,7 +518,7 @@ function getInfo(req, res) {
 
   var userId = req.userId;
   if (userId) {
-    db.findOne({
+    accountRepo.findOne({
       "_id": new ObjectId(userId)
     }, (value) => {
       if (value == null) {
