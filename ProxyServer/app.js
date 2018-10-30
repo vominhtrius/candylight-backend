@@ -9,7 +9,7 @@ const http = require('http');
 const httpProxy = require('http-proxy');
 const accountServiceRoute = require('./api/routes/account-service.js');
 const chatServiceRoute = require('./api/routes/chat-service.js');
-
+const learningServiceRoute = require('./api/routes/learning-service.js');
 
 ///////////////////////////////////////////
 var app = express();
@@ -32,7 +32,9 @@ app.use(cors());
 
 accountServiceRoute(app, apiProxy);
 chatServiceRoute(app, apiProxy);
+learningServiceRoute(app, apiProxy);
 
+///////////////////////////////////////
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 

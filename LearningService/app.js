@@ -5,8 +5,8 @@ var app = require('express')();
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
-var jwt = require('jsonwebtoken') 
-var configJWT = require('./api/controllers/config');
+const jwt = require('jsonwebtoken');
+const configJWT = require('./api/controllers/config');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 module.exports = app; // for testing
@@ -32,16 +32,13 @@ var config = {
   }
 };
 
-
-
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }
 
   // install middleware
   swaggerExpress.register(app);
 
-  var port = process.env.PORT || 8001;
+  var port = process.env.PORT || 8003;
   app.listen(port);
-
- 
+  
 });
