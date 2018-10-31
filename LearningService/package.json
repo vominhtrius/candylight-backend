@@ -10,6 +10,7 @@
   "dependencies": {
     "express": "^4.12.3",
     "jsonwebtoken": "^8.3.0",
+    "mongodb": "^3.1.8",
     "swagger-express-mw": "^0.1.0",
     "swagger-ui-express": "^4.0.1",
     "yamljs": "^0.3.0"
