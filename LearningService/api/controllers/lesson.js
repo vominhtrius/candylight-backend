@@ -59,12 +59,12 @@ function add(req, res) {
 
   var body = req.swagger.params.body.value;
   var content = body.content;
-  var headId = body.headId;
+  var categoryId = body.categoryId;
   var topicId = body.topicId;
   var title = body.title;
   var data = {
     content: content,
-    headId: headId,
+    categoryId: categoryId,
     topicId: topicId,
     title: title
   }
@@ -88,12 +88,12 @@ function update(req, res) {
   var lessonId = req.swagger.params.lessonId.value;
   var body = req.swagger.params.body.value;
   var content = body.content;
-  var headId = body.headId;
+  var categoryId = body.categoryId;
   var topicId = body.topicId;
   var title = body.title;
   var data = {
     content: content,
-    headId: headId,
+    categoryId: categoryId,
     topicId: topicId,
     title: title
   }
@@ -119,6 +119,9 @@ function update(req, res) {
         console.log(lesson.topicId);
         topicRepo.update(queryTopicOld, {$pull: { lessons: { _id: lesson._id, title: lesson.title} } });
         topicRepo.update(queryTopicNew, {$push: { lessons: { _id: lesson._id, title: title} } });
+      } else {
+        var queryTopic = {"lessons._id": lesson._id};
+        topicRepo.update(queryTopic, {$set: { "lessons.$.title": title} });
       }
       res.status(200);
       res.json({success: true, value: data});

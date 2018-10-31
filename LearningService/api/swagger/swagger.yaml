@@ -180,6 +180,87 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /categorys:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: category
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: getAll
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: add
+      parameters:
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/CategoryReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categorys/{categoryId}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: category
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: getOne
+      parameters:
+        - in: path
+          name: categoryId
+          type: string
+          required: true
+          description: description of paramete
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: update
+      parameters:
+        - in: path
+          name: categoryId
+          type: string
+          required: true
+          description: description of paramete
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/CategoryReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -189,17 +270,23 @@ definitions:
       - title
       - content
       - topicId
-      - headId
+      - categoryId
     properties:
       content:
         type: string
       topicId:
         type: string
-      headId:
+      categoryId:
         type: string
       title:
         type: string
   TopicReq:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+  CategoryReq:
     required:
       - name
     properties:
