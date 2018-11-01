@@ -7,7 +7,7 @@ const db = require('../../fn/mongo')
 const uuidv1 = require('uuid/v1');
 var ObjectId = require('mongodb').ObjectID;
 
-
+//db.createIndex({email:1},{unique:true});
 //Singin user
 function signin(req, res) {
   var body = req.swagger.params.body;
@@ -84,6 +84,7 @@ function signup(req, res) {
   db.insert(user, (err, result) => {
     if(err){
       var mess = "";
+      console.log(err);
       if(err.code === 11000) {
         mess = "Username already exists";
       } else {
