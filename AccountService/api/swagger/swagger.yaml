@@ -193,12 +193,12 @@ definitions:
   UserSignin:
     type: object
     required:
-      - username
-      - password
+      - userName
+      - passWord
     properties:
-      username:
+      userName:
         type: string
-      password:
+      passWord:
         type: string
   UserSigninFB_GG:
     type: object
@@ -210,16 +210,16 @@ definitions:
   UserSignup:
     type: object
     required:
-      - username
-      - password
-      - rePassword
+      - userName
+      - passWord
+      - rePassWord
       - email
     properties:
-      username:
+      userName:
         type: string
-      password:
+      passWord:
         type: string
-      rePassword:
+      rePassWord:
         type: string
       email: 
         type: string

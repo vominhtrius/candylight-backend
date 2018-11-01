@@ -1,0 +1,311 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+# during dev, should point to your local machine
+host: localhost:8003
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /lessons:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: lesson
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: getLessons
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: addLesson
+      parameters:
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/LessonReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /lessons/{lessonId}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: lesson
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: findOneLesson
+      parameters:
+        - in: path
+          name: lessonId
+          type: string
+          required: true
+          description: description of paramete
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: updateLesson
+      parameters:
+        - in: path
+          name: lessonId
+          type: string
+          required: true
+          description: description of paramete
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/LessonReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /topics:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: topic
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: getAllTopic
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: addTopic
+      parameters:
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/TopicReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /topics/{topicId}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: topic
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: getOneTopic
+      parameters:
+        - in: path
+          name: topicId
+          type: string
+          required: true
+          description: description of paramete
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: updateTopic
+      parameters:
+        - in: path
+          name: topicId
+          type: string
+          required: true
+          description: description of paramete
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/TopicReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categorys:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: category
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: getAll
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: add
+      parameters:
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/CategoryReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResp"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categorys/{categoryId}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: category
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: getOne
+      parameters:
+        - in: path
+          name: categoryId
+          type: string
+          required: true
+          description: description of paramete
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns 'Hello' to the caller
+      operationId: update
+      parameters:
+        - in: path
+          name: categoryId
+          type: string
+          required: true
+          description: description of paramete
+        - in: body
+          name: body
+          description: parameters with username & password.
+          schema:
+            $ref: '#/definitions/CategoryReq'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResp"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  LessonReq:
+    required:
+      - title
+      - content
+      - topicId
+      - categoryId
+    properties:
+      content:
+        type: string
+      topicId:
+        type: string
+      categoryId:
+        type: string
+      title:
+        type: string
+  TopicReq:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+  CategoryReq:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+  MessageResp:
+    type: object
+    required: 
+      - success
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      value:
+        type: object
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string

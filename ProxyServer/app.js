@@ -9,7 +9,7 @@ const http = require('http');
 const httpProxy = require('http-proxy');
 const accountServiceRoute = require('./api/routes/account-service.js');
 const chatServiceRoute = require('./api/routes/chat-service.js');
-
+const learningServiceRoute = require('./api/routes/learning-service.js');
 
 ///////////////////////////////////////////
 var app = express();
@@ -23,8 +23,6 @@ const apiProxy = httpProxy.createProxyServer();
 //////////////////////////////////////////
 app.use(favicon());
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
@@ -34,6 +32,11 @@ app.use(cors());
 
 accountServiceRoute(app, apiProxy);
 chatServiceRoute(app, apiProxy);
+learningServiceRoute(app, apiProxy);
+
+///////////////////////////////////////
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 
 ///////////////////////////////////////////
 app.server.listen(process.env.PORT || 8000, () => {

@@ -33,10 +33,10 @@ Tutorial
 
 ## II. How to build swagger UI document
 ### 1. Install the swagger ui module
-> $ npm install -g swagger-ui-express
+> $ sudo npm install -g swagger-ui-express
 
 ### 2. Install the yamljs module
-> $ npm install -g yamljs
+> $ sudo npm install -g yamljs
 
 ### 2. Add this code in app.js
 ```nodejs
