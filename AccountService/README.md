@@ -1,5 +1,15 @@
 # candylight-backend
 
+Setting
+---
+## URL connect MongoDB: 
+    mongodb://103.114.107.16:27017/qlpm
+## Document api swagger:
+    http://103.114.107.16:8001/api-docs/
+    
+ 
+Tutorial
+---
 ## I. How to build Sever swagger 
 ### 1. Install the swagger module
 > $ npm install -g swagger
@@ -23,10 +33,10 @@
 
 ## II. How to build swagger UI document
 ### 1. Install the swagger ui module
-> $ npm install -g swagger-ui-express
+> $ sudo npm install -g swagger-ui-express
 
 ### 2. Install the yamljs module
-> $ npm install -g yamljs
+> $ sudo npm install -g yamljs
 
 ### 2. Add this code in app.js
 ```nodejs
@@ -84,7 +94,7 @@
 
 [mongodb](https://www.npmjs.com/package/mongodb)
 
-### III. How to build Redis server on ubuntu
+### IV. How to build Redis server on ubuntu
 #### 1. Redis Quick Start
 
 - Link tham khảo:
@@ -100,3 +110,14 @@
 - Link tham khảo:
 
 [redis - a node.js redis client](https://www.npmjs.com/package/redis)
+
+### V. Open port MongoDB in Window Server 2012
+
+#### 1. Open port in firewall
+> netsh a f a r n="Open Port 27017 MongoDB" d=in a=allow prot=TCP localp=27017
+
+#### 2. Run MongoDB
+
+> mongod --bind_ip 0.0.0.0
+
+

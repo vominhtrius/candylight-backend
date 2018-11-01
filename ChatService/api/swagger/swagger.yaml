@@ -52,7 +52,7 @@ definitions:
     properties:
       message:
         type: string
-  ErrorResponse:
+  ErrorResponse:``
     required:
       - message
     properties:

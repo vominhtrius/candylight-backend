@@ -3,54 +3,33 @@ var config = require("../config/db");
 var MongoClient = mongodb.MongoClient;
 
 var url = config.DATABASE_URL;
-var mongo = MongoClient.connect(url);
-exports.insert = (data, callback) =>
+
+exports.insert = (data, collectionMG, callback) =>
   MongoClient.connect(url, function(err, db) {
     if (err) {
       console.log("Unable to connect to the mongoDB server. Error:", err);
     } else {
       console.log("Connection established to", url);
 
-      //var collection = db.collection(config.DATABASE_COLLECTION);
-      const collection = db.db('qlpm').collection(config.DATABASE_COLLECTION);
+      const collection = db.db('qlpm').collection(collectionMG);
       
       collection.insert(data, function(err, result) {
-        // if (err) {
-        //   console.log(err);
-        // } else {
-        //   // console.log(
-        //   //   'Inserted %d documents into the "users" collection. The documents inserted with "_id" are:',
-        //   //   result.length,
-        //   //   result
-        //   // );
-        // }
-
         db.close();
         return callback(err, result);
       });
     }
   });
 
-exports.update = (dataOld, dataNew, callback) =>
+exports.update = (dataOld, dataNew, collectionMG, callback) =>
   MongoClient.connect(url, function(err, db) {
     if (err) {
       console.log("Unable to connect to the mongoDB server. Error:", err);
     } else {
       console.log("Connection established to", url);
 
-      const collection = db.db('qlpm').collection(config.DATABASE_COLLECTION);
+      const collection = db.db('qlpm').collection(collectionMG);
       
       collection.update(dataOld, dataNew, function(err, result) {
-        // if (err) {
-        //   console.log(err);
-        // } else {
-        //   console.log(
-        //     'Inserted %d documents into the "users" collection. The documents inserted with "_id" are:',
-        //     result.length,
-        //     result
-        //   );
-        // }
-        
 
         db.close();
         return callback(err, result);
@@ -58,25 +37,20 @@ exports.update = (dataOld, dataNew, callback) =>
     }
   });
 
-exports.findOne = (data, callback) =>
+exports.findOne = (data, collectionMG, callback) =>
   MongoClient.connect(url, (err, db) => {
     if (err) {
       console.log("Unable to connect to the mongoDB server. Error:", err);
     } else {
       console.log("Connection established to", url);
 
-      const collection = db.db('qlpm').collection(config.DATABASE_COLLECTION);
+      const collection = db.db('qlpm').collection(collectionMG);
       
       collection.findOne(data, function(err, result) {
         if (err) {
           console.log(err);
         } else {
           console.log("Query OK");
-          // console.log(
-          //   'Inserted %d documents into the "users" collection. The documents inserted with "_id" are:',
-          //   result.length,
-          //   result
-          // );
         }
         db.close();
         return callback(result);
