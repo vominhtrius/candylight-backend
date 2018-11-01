@@ -3,17 +3,17 @@
 var util = require("util");
 var jwt = require('jsonwebtoken')
 const config = require('./config')
-const db = require('../../fn/mongo')
+const accountRepo = require('../../repository/accountRepo')
 const md5 = require('md5')
 var ObjectId = require('mongodb').ObjectID;
 const request = require('request');
 
-
+//db.createIndex({email:1},{unique:true});
 //Singin user
 function signin(req, res) {
   var body = req.swagger.params.body;
-  var userName = body.value.username;
-  var passWord = body.value.password;
+  var userName = body.value.userName;
+  var passWord = body.value.passWord;
   if (userName === "") {
     res.json({
       success: false,
@@ -24,21 +24,21 @@ function signin(req, res) {
   if (passWord === "") {
     res.json({
       success: false,
-      message: 'Missing password'
+      message: 'Missing passWord'
     });
     return;
   }
   var user = {
-    username: userName,
-    password: md5(passWord)
+    userName: userName,
+    passWord: md5(passWord)
   };
-  console.log(user);
-  db.findOne(user, (value) => {
+  //console.log(user);
+  accountRepo.findOne(user, (value) => {
     if (value == null) {
       res.status(401);
       res.json({
         success: false,
-        message: 'Invaild username or password'
+        message: 'Invaild username or passWord'
       });
     } else {
       const accessToken = jwt.sign({
@@ -46,7 +46,7 @@ function signin(req, res) {
       }, config.secret, {
         expiresIn: config.tokenLife
       })
-      value.password = null;
+      value.passWord = null;
       res.status(200);
       res.json({
         success: true,
@@ -90,15 +90,14 @@ function signinFB(req, res) {
       });
       return;
     }
-    // eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyODlkNTQyODBiNzY3MTJkZTQxY2QyZWY5NTk3MmIxMjNiZTlhYzAiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDMxMTY1MTYwMDM4NzkwNzAwNDUiLCJhdF9oYXNoIjoiU1VCdm9XM3JCazd0NmhqMnA4Rkh5dyIsIm5hbWUiOiJraW5nIGN1YSBubyIsInBpY3R1cmUiOiJodHRwczovL2xoNi5nb29nbGV1c2VyY29udGVudC5jb20vLXJaWnV3cE1qc01zL0FBQUFBQUFBQUFJL0FBQUFBQUFBQUFBL0FCdE5sYkNKOF9wRXdKaE5USjBKanFIWHoyV1c0LXo5ZkEvczk2LWMvcGhvdG8uanBnIiwiZ2l2ZW5fbmFtZSI6ImtpbmciLCJmYW1pbHlfbmFtZSI6ImN1YSBubyIsImxvY2FsZSI6ImVuIiwiaWF0IjoxNTQwODA3MjQ4LCJleHAiOjE1NDA4MTA4NDh9.UUU24CO4wPRdKVkEcWvZs35Hkp02YrUaHZ1So695VGqJC2SN3gYcJnt9TTiNfAtrArSwSuctvCEa6YPPEq3jnEPBeY_K1Hz3eZALdDMIjjY_wqmJYsvBJySxjPtancBdFtTsBj4adDcuPCWyBNMqXxxWjrKnSKzze3fLw1gWqbp1QsEnUoO__Lka8GTjKZLXzUL8l6cPatcUYZU_CRuSjiVhleAYxjYslGybNDd4L8mf7LmbGihOM1qQ3TykppZcXfT9yd9L2IrgDGFqHoGdjwZAQDFvkfEVGnOal_2CBHyizhLEn-mjPWvc8Kb8e8Muglv-vLXyL3Nka9rl4McBmg
-    db.findOne({
-      "username": userId
-    }, (value) => {
-      if (value == null) {
+    accountRepo.findOne({
+      "userName": userId
+    }, (value) => { //not exist userId in db -> create account
+      if (value == null) { 
         console.log("Create user");
         var user = {
-          username: userId,
-          password: null,
+          userName: userId,
+          passWord: null,
           email: email,
           firstName: fName,
           lastName: lName,
@@ -112,8 +111,8 @@ function signinFB(req, res) {
           regionParent: "",
           pointReward: 0,
         };
-        console.log("new user: " + user);
-        db.insert(user, (err, result) => {
+        //console.log("new user: " + user);
+        accountRepo.insert(user, (err, result) => {
           if (err) {
             var mess = "";
             if (err.code === 11000) {
@@ -133,7 +132,7 @@ function signinFB(req, res) {
             }, config.secret, {
               expiresIn: config.tokenLife
             })
-            user.password = null;
+            user.passWord = null;
             res.status(200);
             res.json({
               success: true,
@@ -147,7 +146,7 @@ function signinFB(req, res) {
         });
       } else { //exist userId in db -> get accessToken
         const accessToken = jwt.sign({userId: value._id }, config.secret, { expiresIn: config.tokenLife })
-        value.password = null;
+        value.passWord = null;
         res.status(200);
         res.json({
           success: true,
@@ -192,14 +191,14 @@ function signinGoogle(req, res) {
       });
       return;
     }
-    db.findOne({
-      "username": userId
+    accountRepo.findOne({
+      "userName": userId
     }, (value) => {
       if (value == null) {
         console.log("Create user");
         var user = {
-          username: userId,
-          password: null,
+          userName: userId,
+          passWord: null,
           email: email,
           firstName: fName,
           lastName: lName,
@@ -213,8 +212,8 @@ function signinGoogle(req, res) {
           regionParent: "",
           pointReward: 0,
         };
-        console.log("new user: " + user);
-        db.insert(user, (err, result) => {
+        //console.log("new user: " + user);
+        accountRepo.insert(user, (err, result) => {
           if (err) {
             var mess = "";
             if (err.code === 11000) {
@@ -234,7 +233,7 @@ function signinGoogle(req, res) {
             }, config.secret, {
               expiresIn: config.tokenLife
             })
-            user.password = null;
+            user.passWord = null;
             res.status(200);
             res.json({
               success: true,
@@ -248,7 +247,7 @@ function signinGoogle(req, res) {
         });
       } else { //exist userId in db -> get accessToken
         const accessToken = jwt.sign({userId: value._id }, config.secret, { expiresIn: config.tokenLife })
-        value.password = null;
+        value.passWord = null;
         res.status(200);
         res.json({
           success: true,
@@ -266,11 +265,10 @@ function signinGoogle(req, res) {
 function signup(req, res) {
 
   var body = req.swagger.params.body;
-  var userName = body.value.username;
-  var password = body.value.password;
-  var rePassword = body.value.rePassword;
+  var userName = body.value.userName;
+  var passWord = body.value.passWord;
+  var rePassWord = body.value.rePassWord;
   var email = body.value.email;
-
   if (userName === "") {
     res.json({
       success: false,
@@ -278,17 +276,17 @@ function signup(req, res) {
     });
     return;
   }
-  if (password === "") {
+  if (passWord === "") {
     res.json({
       success: false,
-      message: 'Missing password'
+      message: 'Missing passWord'
     });
     return;
   }
-  if (password !== rePassword) {
+  if (passWord !== rePassWord) {
     res.json({
       success: false,
-      message: 'Password and Re-enter password not match'
+      message: 'passWord and Re-enter passWord not match'
     });
     return;
   }
@@ -300,8 +298,8 @@ function signup(req, res) {
     return;
   }
   var user = {
-    username: userName,
-    password: md5(password),
+    userName: userName,
+    passWord: md5(passWord),
     email: email,
     firstName: "",
     lastName: "",
@@ -315,7 +313,7 @@ function signup(req, res) {
     regionParent: "",
     pointReward: 0,
   };
-  db.insert(user, (err, result) => {
+  accountRepo.insert(user, (err, result) => {
     if (err) {
       var mess = "";
       if (err.code === 11000) {
@@ -336,7 +334,7 @@ function signup(req, res) {
         expiresIn: config.tokenLife
       })
 
-      user.password = null;
+      user.passWord = null;
       res.status(200);
       res.json({
         success: true,
@@ -468,7 +466,7 @@ function updateInfo(req, res) {
     phoneParent: phoneParent,
     regionParent: regionParent
   };
-  db.findOne({
+  accountRepo.findOne({
     "_id": new ObjectId(userId)
   }, (value) => {
     if (value == null) {
@@ -489,7 +487,7 @@ function updateInfo(req, res) {
       value.emailParent = emailParent,
       value.phoneParent = phoneParent,
       value.regionParent = regionParent
-      db.update({
+      accountRepo.update({
         "_id": new ObjectId(userId)
       }, value, (err, result) => {
         if (err) {
@@ -501,7 +499,7 @@ function updateInfo(req, res) {
           });
           console.log("OK send");
         } else {
-          value.password = null;
+          value.passWord = null;
           res.status(200);
           res.json({
             success: true,
@@ -519,7 +517,7 @@ function getInfo(req, res) {
 
   var userId = req.userId;
   if (userId) {
-    db.findOne({
+    accountRepo.findOne({
       "_id": new ObjectId(userId)
     }, (value) => {
       if (value == null) {
@@ -529,7 +527,7 @@ function getInfo(req, res) {
           message: 'User not found'
         });
       } else {
-        value.password = null;
+        value.passWord = null;
         res.status(200);
         res.json({
           success: true,
