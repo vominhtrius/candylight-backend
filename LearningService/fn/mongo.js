@@ -45,7 +45,6 @@ exports.update = (query, dataNew, collectionMG) => {
                 const collection = db.db('qlpm').collection(collectionMG);
                 
                 collection.update(query, dataNew,{ upsert: false } , function(err, result) {
-                    //console.log(util.inspect(result.result, {showHidden: false, depth: null}))
 
                     db.close();
                     if(err) {

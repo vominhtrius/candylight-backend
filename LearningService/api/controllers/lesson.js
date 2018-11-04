@@ -4,6 +4,8 @@ var util = require('util');
 const config = require('./config')
 const lessonRepo = require('../../repository/lessonRepo')
 const topicRepo = require('../../repository/topicRepo')
+const categoryRepo = require('../../repository/categoryRepo')
+
 
 var ObjectId = require('mongodb').ObjectID;
 
@@ -67,42 +69,66 @@ function add(req, res) {
     categoryId: categoryId,
     topicId: topicId,
     title: title
-  }
-  lessonRepo.insert(data).then( value => {
-    res.status(200);
-    res.json({success: true, value: data});
-    console.log(util.inspect(data, {showHidden: false, depth: null}))
-    
-    var queryTopic = {"_id": new ObjectId(topicId)};
-    topicRepo.update(queryTopic, {$push: { lessons: { _id: data._id, title: data.title } } });
-
-  }).catch( err => {
-    res.status(200);
-    res.json({success: false, message: err.err });
+  };
+  var queryTopic = {"_id": new ObjectId(topicId)};
+  var queryCategory = {"_id": new ObjectId(categoryId)};
+  
+  const topicFound = topicRepo.findOne(queryTopic);  
+  const categoryFound = categoryRepo.findOne(queryCategory);  
+  
+  Promise.all([topicFound, categoryFound]).then(([topic, category]) => {
+    if(!category) {
+      res.status(200);
+      res.json({success: false, message: "category not found" });
+      return;
+    }
+    if(!topic) {
+      res.status(200);
+      res.json({success: false, message: "topic not found" });
+      return;
+    }
+    lessonRepo.insert(data).then( value => {
+      res.status(200);
+      res.json({success: true, value: data});
+      //console.log(util.inspect(data, {showHidden: false, depth: null}))
+      
+      var queryTopic = {"_id": new ObjectId(topicId)};
+      topicRepo.update(queryTopic, {$push: { lessons: { _id: data._id, title: data.title } } });
+      categoryRepo.update({"_id": new ObjectId(categoryId), "topics._id": new ObjectId(topicId)}, {$push: { 'topics.$.lessons': { _id: data._id, title: data.title } } });
+      
+    }).catch( err => {
+      res.status(200);
+      res.json({success: false, message: err.err });
+    });
   });
+  
 }
 
 function update(req, res) {
   
-//db.getCollection('Majors').find({"_id": ObjectId("5bd827d5fad8ea1600fcb18b")}).delete({$pop: {"lessons": {"_id": ObjectId("5bd916624a6df2038b277217")}}})
   var lessonId = req.swagger.params.lessonId.value;
   var body = req.swagger.params.body.value;
   var content = body.content;
-  var categoryId = body.categoryId;
-  var topicId = body.topicId;
-  var title = body.title;
+  var categoryIdNew = body.categoryId;
+  var topicIdNew = body.topicId;
+  var titleNew = body.title;
   var data = {
     content: content,
-    categoryId: categoryId,
-    topicId: topicId,
-    title: title
+    categoryId: categoryIdNew,
+    topicId: topicIdNew,
+    title: titleNew
   }
   //console.log(util.inspect(data, {showHidden: false, depth: null}))
   var query = {"_id": new ObjectId(lessonId)};
-  var queryTopicNew = {"_id": new ObjectId(topicId)};
+  var queryTopicNew = {"_id": new ObjectId(topicIdNew)};
+  var queryCategoryNew = {"_id": new ObjectId(categoryIdNew)};
+  
   const lessonFound = lessonRepo.findOne(query);
   const topicFound = topicRepo.findOne(queryTopicNew);
-  Promise.all([lessonFound, topicFound]).then(([lesson, topic]) => {
+  const categoryFound = categoryRepo.findOne(queryCategoryNew);
+  
+  Promise.all([lessonFound, topicFound, categoryFound]).then(([lesson, topic, category]) => {
+   
     if(!lesson) {
       res.status(200);
       res.json({success: false, message: "lesson not found" });
@@ -113,15 +139,32 @@ function update(req, res) {
       res.json({success: false, message: "topic not found" });
       return;
     }
+    if(!category) {
+      res.status(200);
+      res.json({success: false, message: "category not found" });
+      return;
+    }
+    if(!category._id.equals(topic.categoryId)) {
+      res.status(200);
+      res.json({success: false, message: "topic not found in category" });
+      return;
+    }
+
     lessonRepo.update(query, data).then( value => {
-      if(lesson.topicId !== topicId) {
+      if(lesson.topicId !== topicIdNew) {
         var queryTopicOld = {"_id": new ObjectId(lesson.topicId)};
-        console.log(lesson.topicId);
+        var queryCategoryOld = {"_id": new ObjectId(lesson.categoryId)};
+        
         topicRepo.update(queryTopicOld, {$pull: { lessons: { _id: lesson._id, title: lesson.title} } });
-        topicRepo.update(queryTopicNew, {$push: { lessons: { _id: lesson._id, title: title} } });
+        topicRepo.update(queryTopicNew, {$push: { lessons: { _id: lesson._id, title: titleNew} } });
+        categoryRepo.update({"_id": new ObjectId(lesson.categoryId), "topics._id": new ObjectId(lesson.topicId)}, {$pull: { 'topics.$.lessons': { _id: lesson._id } } });
+        categoryRepo.update({ "_id": new ObjectId(categoryIdNew), "topics._id": new ObjectId(topicIdNew)}, {$push: { 'topics.$.lessons': { _id: lesson._id, title: data.title } } });
       } else {
-        var queryTopic = {"lessons._id": lesson._id};
-        topicRepo.update(queryTopic, {$set: { "lessons.$.title": title} });
+        var queryTopicUpdate = {"lessons._id": lesson._id};
+        topicRepo.update(queryTopicUpdate, {$set: { "lessons.$.title": titleNew} });
+        
+        categoryRepo.update({"_id": new ObjectId(lesson.categoryId), "topics._id": new ObjectId(lesson.topicId)}, {$pull: { 'topics.$.lessons': { _id: lesson._id} } });
+        categoryRepo.update({ "_id": new ObjectId(categoryIdNew), "topics._id": new ObjectId(topicIdNew)}, {$push: { 'topics.$.lessons': { _id: lesson._id, title: data.title } } });
       }
       res.status(200);
       res.json({success: true, value: data});

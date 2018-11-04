@@ -313,11 +313,13 @@ function signup(req, res) {
     regionParent: "",
     pointReward: 0,
   };
+  console.log(user);
   accountRepo.insert(user, (err, result) => {
     if (err) {
+      console.log(err);
       var mess = "";
       if (err.code === 11000) {
-        mess = "Username already exists";
+        mess = "Username or email already exists, please try again!";
       } else {
         mess = "Error undefine, StatusCode: " + err.code;
       }
