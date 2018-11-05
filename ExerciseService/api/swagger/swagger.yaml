@@ -1,0 +1,236 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+# during dev, should point to your local machine
+host: localhost:8004
+# basePath prefixes all resource paths 
+basePath: /api/exercise
+# 
+securityDefinitions:
+  auth0:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "Authorization logged to application"
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /topic/{topicId}:
+    x-swagger-router-controller: question
+    get:
+      description: Returns list questions of topic
+      # used as the method name of the controller
+      operationId: getQuestionsOfTopic
+      parameters:
+        - name: topicId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+      # security:
+      # - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListQuestionOfTopic"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: insert question of Topic
+      operationId: insertQuestionIntoTopic
+      parameters:
+        - name: topicId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: fields of question
+          schema:
+            $ref: "#/definitions/QuestionRequest"           
+      # security:
+      # - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      description: "delete question of topic"
+      operationId: deleteQuestionOfTopic
+      parameters:
+        - name: topicId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+      # security:
+      # - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      description: "update question of topic"
+      operationId: updateQuestionOfTopic
+      parameters:
+        - name: topicId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: fields of question
+          schema:
+            $ref: "#/definitions/QuestionRequest"  
+      # security:
+      # - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /verifyAnswer/{questionId}:
+    x-swagger-router-controller: question
+    post:
+      description: verify answer
+      operationId: verfifyAnswer
+      parameters:
+        - name: questionId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: fields of question
+          schema:
+            $ref: "#/definitions/AnswerRequest"           
+      # security:
+      # - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/AnswerResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  ListQuestionOfTopic:
+    type: object
+    properties:
+      listQuestion:
+        type: array
+        items:
+          $ref: "#/definitions/QuestionResponse"
+  QuestionResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      content:
+        type: string
+      answers:
+        type: object
+        properties:
+          ansA:
+            type: string
+          ansB:
+            type: string
+          ansC:
+            type: string
+          ansD:
+            type: string
+  QuestionRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      content:
+        type: string
+      answers:
+        type: object
+        properties:
+          ansA:
+            type: string
+          ansB:
+            type: string
+          ansC:
+            type: string
+          ansD:
+            type: string
+      answerRight:
+        type: string
+      explainRight:
+        type: string
+      suggest:
+        type: string
+  MessageResponse:
+    type: object
+    required:
+      - success
+    properties:
+      success:
+        type: integer
+      message:
+        type: string
+  AnswerRequest:
+    type: object
+    properties:
+      answer:
+        type: string
+  AnswerResponse:
+    type: object
+    properties:
+      result:
+        type: boolean
+      record:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
