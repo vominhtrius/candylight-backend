@@ -313,11 +313,13 @@ function signup(req, res) {
     regionParent: "",
     pointReward: 0,
   };
+  console.log(user);
   accountRepo.insert(user, (err, result) => {
     if (err) {
+      console.log(err);
       var mess = "";
       if (err.code === 11000) {
-        mess = "Username already exists";
+        mess = "Username or email already exists, please try again!";
       } else {
         mess = "Error undefine, StatusCode: " + err.code;
       }
@@ -382,77 +384,77 @@ function updateInfo(req, res) {
     });
     return;
   }
-  if (lastName == "") {
-    res.json({
-      success: false,
-      message: 'Missing lastName'
-    });
-    return;
-  }
-  if (region == "") {
-    res.json({
-      success: false,
-      message: 'Missing region'
-    });
-    return;
-  }
-  if (school == "") {
-    res.json({
-      success: false,
-      message: 'Missing school'
-    });
-    return;
-  }
-  if (capacity == "") {
-    res.json({
-      success: false,
-      message: 'Missing capacity'
-    });
-    return;
-  }
-  if (fNameParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing First Name Parent'
-    });
-    return;
-  }
-  if (lNameParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Last Name Parent'
-    });
-    return;
-  }
-  if (emailParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Email Parent'
-    });
-    return;
-  }
-  if (phoneParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Phone Parent'
-    });
-    return;
-  }
-  if (regionParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Region Parent'
-    });
-    return;
-  }
-  if(phoneParent == "") {
-    res.json({success: false, message: 'Missing Phone Parent'});
-    return;
-  }
-  if(regionParent == "") {
-    res.json({success: false, message: 'Missing Region Parent'});
-    return;
-  }
+  // if (lastName == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing lastName'
+  //   });
+  //   return;
+  // }
+  // if (region == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing region'
+  //   });
+  //   return;
+  // }
+  // if (school == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing school'
+  //   });
+  //   return;
+  // }
+  // if (capacity == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing capacity'
+  //   });
+  //   return;
+  // }
+  // if (fNameParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing First Name Parent'
+  //   });
+  //   return;
+  // }
+  // if (lNameParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Last Name Parent'
+  //   });
+  //   return;
+  // }
+  // if (emailParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Email Parent'
+  //   });
+  //   return;
+  // }
+  // if (phoneParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Phone Parent'
+  //   });
+  //   return;
+  // }
+  // if (regionParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Region Parent'
+  //   });
+  //   return;
+  // }
+  // if(phoneParent == "") {
+  //   res.json({success: false, message: 'Missing Phone Parent'});
+  //   return;
+  // }
+  // if(regionParent == "") {
+  //   res.json({success: false, message: 'Missing Region Parent'});
+  //   return;
+  // }
 
   var userProfile = {
     firstName: firstName,
