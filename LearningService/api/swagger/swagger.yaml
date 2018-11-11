@@ -1,14 +1,19 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: Quan Ly Du An Phan Men
 # during dev, should point to your local machine
 host: localhost:8003
 # basePath prefixes all resource paths 
-basePath: /
+basePath: /api/learning
 # 
+securityDefinitions:
+  auth0:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "Authorization logged to application"
 schemes:
-  # tip: remove http to make production-grade
   - http
   - https
 # format of bodies a client can send (Content-Type)
@@ -19,11 +24,14 @@ produces:
   - application/json
 paths:
   /lessons:
-    # binds a127 app logic to a route
     x-swagger-router-controller: lesson
     get:
-      description: Returns 'Hello' to the caller
+      description: Returns all lesson
       operationId: getLessons
+      tags:
+        - lesson
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -34,12 +42,16 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
     post:
-      description: Returns 'Hello' to the caller
+      description: Add new lesson
       operationId: addLesson
+      tags:
+        - lesson
+      security:
+        - auth0: []
       parameters:
         - in: body
           name: body
-          description: parameters with username & password.
+          description: parameters with content, topic, category, title in new lesson .
           schema:
             $ref: '#/definitions/LessonReq'
       responses:
@@ -52,17 +64,20 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   /lessons/{lessonId}:
-    # binds a127 app logic to a route
     x-swagger-router-controller: lesson
     get:
-      description: Returns 'Hello' to the caller
+      description: Returns lesson info with parameters lessonId
       operationId: findOneLesson
+      tags:
+        - lesson
+      security:
+        - auth0: []
       parameters:
         - in: path
           name: lessonId
           type: string
           required: true
-          description: description of paramete
+          description: id lesson
       responses:
         "200":
           description: Success
@@ -75,17 +90,21 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
     post:
-      description: Returns 'Hello' to the caller
+      description: Update lesson info
       operationId: updateLesson
+      tags:
+        - lesson
+      security:
+        - auth0: []
       parameters:
         - in: path
           name: lessonId
           type: string
           required: true
-          description: description of paramete
+          description: id lesson
         - in: body
           name: body
-          description: parameters with username & password.
+          description: parameters with content, topic, category, title in new lesson.
           schema:
             $ref: '#/definitions/LessonReq'
       responses:
@@ -100,11 +119,14 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   /topics:
-    # binds a127 app logic to a route
     x-swagger-router-controller: topic
     get:
-      description: Returns 'Hello' to the caller
+      description: Returns all topic
       operationId: getAllTopic
+      tags:
+        - topic
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -115,12 +137,16 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
     post:
-      description: Returns 'Hello' to the caller
+      description: Add new topic
       operationId: addTopic
+      tags:
+        - topic
+      security:
+        - auth0: []
       parameters:
         - in: body
           name: body
-          description: parameters with username & password.
+          description: parameters with name, category.
           schema:
             $ref: '#/definitions/TopicReq'
       responses:
@@ -136,37 +162,43 @@ paths:
     # binds a127 app logic to a route
     x-swagger-router-controller: topic
     get:
-      description: Returns 'Hello' to the caller
+      description: Returns topic info with parameters topicId
       operationId: getOneTopic
+      tags:
+        - topic
+      security:
+        - auth0: []
       parameters:
         - in: path
           name: topicId
           type: string
           required: true
-          description: description of paramete
+          description: id topic
       responses:
         "200":
           description: Success
           schema:
-            # a pointer to a definition
             $ref: "#/definitions/MessageResp"
-        # responses may fall through to errors
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
     post:
-      description: Returns 'Hello' to the caller
+      description: Update topic info
       operationId: updateTopic
+      tags:
+        - topic
+      security:
+        - auth0: []
       parameters:
         - in: path
           name: topicId
           type: string
           required: true
-          description: description of paramete
+          description: id topic
         - in: body
           name: body
-          description: parameters with username & password.
+          description: parameters with name, category.
           schema:
             $ref: '#/definitions/TopicReq'
       responses:
@@ -184,8 +216,12 @@ paths:
     # binds a127 app logic to a route
     x-swagger-router-controller: category
     get:
-      description: Returns 'Hello' to the caller
+      description: Returns all topic
       operationId: getAll
+      tags:
+        - category
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -196,12 +232,16 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
     post:
-      description: Returns 'Hello' to the caller
+      description: Add new topic
       operationId: add
+      tags:
+        - category
+      security:
+        - auth0: []
       parameters:
         - in: body
           name: body
-          description: parameters with username & password.
+          description: parameters with name
           schema:
             $ref: '#/definitions/CategoryReq'
       responses:
@@ -217,14 +257,18 @@ paths:
     # binds a127 app logic to a route
     x-swagger-router-controller: category
     get:
-      description: Returns 'Hello' to the caller
+      description: Returns category info with parameters by categoryId
       operationId: getOne
+      tags:
+        - category
+      security:
+        - auth0: []
       parameters:
         - in: path
           name: categoryId
           type: string
           required: true
-          description: description of paramete
+          description: Id category
       responses:
         "200":
           description: Success
@@ -237,8 +281,12 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
     post:
-      description: Returns 'Hello' to the caller
+      description: Update category info 
       operationId: update
+      tags:
+        - category
+      security:
+        - auth0: []
       parameters:
         - in: path
           name: categoryId
@@ -247,7 +295,7 @@ paths:
           description: description of paramete
         - in: body
           name: body
-          description: parameters with username & password.
+          description: parameters with name.
           schema:
             $ref: '#/definitions/CategoryReq'
       responses:
@@ -283,8 +331,11 @@ definitions:
   TopicReq:
     required:
       - name
+      - categoryId
     properties:
       name:
+        type: string
+      categoryId:
         type: string
   CategoryReq:
     required:
