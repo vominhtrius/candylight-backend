@@ -269,6 +269,8 @@ function signup(req, res) {
   var passWord = body.value.passWord;
   var rePassWord = body.value.rePassWord;
   var email = body.value.email;
+  var fName = body.value.firstName;
+  
   if (userName === "") {
     res.json({
       success: false,
@@ -297,11 +299,18 @@ function signup(req, res) {
     });
     return;
   }
+  if (fName === "") {
+    res.json({
+      success: false,
+      message: 'Missing firstName'
+    });
+    return;
+  }
   var user = {
     userName: userName,
     passWord: md5(passWord),
     email: email,
-    firstName: "",
+    firstName: fName,
     lastName: "",
     region: "",
     school: "",
