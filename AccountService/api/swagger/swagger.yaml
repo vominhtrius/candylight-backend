@@ -214,6 +214,7 @@ definitions:
       - passWord
       - rePassWord
       - email
+      - firstName
     properties:
       userName:
         type: string
@@ -222,6 +223,8 @@ definitions:
       rePassWord:
         type: string
       email: 
+        type: string
+      firstName: 
         type: string
   UserProfile:
     type: object
