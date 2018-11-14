@@ -5,9 +5,9 @@ const app = require('express')();
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
-const jwt = require('jsonwebtoken') 
+const jwt = require('jsonwebtoken')
 const configJWT = require('./api/helpers/configJWT.json');
-const database = require('./api/database/database.js');
+const database = require('./database/database.js');
 
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
