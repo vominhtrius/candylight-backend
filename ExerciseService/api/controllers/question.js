@@ -21,7 +21,7 @@ function getListQuestionsOfTopic(req, res){
 
 function insertChoiceQuestionIntoTopic(req, res){
     const bodyTmp = req.swagger.params.body.value;
-    const db = req.app.db;
+    const db = req.app.db;``
     const body = handlerDataChoiceQuestion(bodyTmp);
 
 
@@ -287,7 +287,7 @@ function handlerDataChoiceQuestion(data){
 
 function handlerDataFillQuestion(data){
     var body = {};
-    
+
     body.topicId = ObjectId(data.topicId.trim());
     body.content = data.content.trim()
     body.answerRight = data.answerRight.trim();
