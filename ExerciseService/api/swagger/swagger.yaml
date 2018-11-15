@@ -186,11 +186,11 @@ definitions:
   ListQuestionOfTopic:
     type: object
     properties:
-      listChoiceQuestion:
+      listChoiceQuestions:
         type: array
         items:
           $ref: "#/definitions/ChoiceQuestionResponse"
-      listFillQuestion:
+      listFillQuestions:
         type: array
         items:
           $ref: "#/definitions/FillQuestionResponse"
@@ -329,6 +329,8 @@ definitions:
     properties:
       result:
         type: boolean
+      record:
+        type: string
         
   ErrorResponse:
     required:

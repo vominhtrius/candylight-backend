@@ -7,9 +7,9 @@ const insertOneDB = (db, collectionName, data) => {
     })
 }
 
-const findOneDB = (db, collectionName, query) => {
+const findOneDB = (db, collectionName, query, option={}) => {
     return new Promise((resolve, reject) => {
-        db.collection(collectionName).findOne(query, (err, result) => {
+        db.collection(collectionName).findOne(query, option, (err, result) => {
             return err || !result ? reject(err) : resolve(result)
         })
     })
@@ -23,8 +23,17 @@ const findOneAndUpdateDB = (db, collectionName, filter, update) => {
     })
 }
 
+
+const aggregateDB = (db, collectionName, query, option={}, limit) => {
+    return new Promise((resolve, reject) => {
+        db.collection(collectionName).aggregate(query).toArray((err, result) => {
+            return err || !result || result.length === 0 ? reject(err) : resolve(result);
+        })
+    })
+}
 module.exports = {
     insertOneDB,
     findOneDB,
-    findOneAndUpdateDB
+    findOneAndUpdateDB,
+    aggregateDB
 }

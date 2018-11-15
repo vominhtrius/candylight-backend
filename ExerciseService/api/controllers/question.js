@@ -13,15 +13,86 @@ module.exports = {
 };
 
 function getListQuestionsOfTopic(req, res){
-    const topicId = req.swagger.params.topicId.value;
+    const topicId = ObjectId(req.swagger.params.topicId.value);
     const numberQuestion = req.swagger.params.numberquestion.value;
-    
+    const db = req.app.db;
 
+    //get list choice question in db
+    var rand = Math.floor(Math.random() * (numberQuestion - 1)) + 1;
+    var listChoiceQuestions = [];
+    var listFillQuestions = [];
+    
+    const queryChoiceQuesion = [
+        {
+            $match:{
+                topicId: topicId
+            }
+        },
+        {
+            $sample: {
+                size: rand
+            }
+        },
+        {
+            $project:{
+                _id: true,
+                content: true,
+                answers: true
+            },
+        }
+    ]
+
+    const queryFillQuesion = [
+        {
+            $match:{
+                topicId: topicId
+            }
+        },
+        {
+            $sample: {
+                size: numberQuestion - rand
+            }
+        },
+        {
+            $project:{
+                _id: true,
+                content: true,
+                answers: true
+            },
+        }
+    ]
+
+    questionFunction.findOneDB(db, "Topics", {_id: topicId}).then((result) => {
+        Promise.all([
+            questionFunction.aggregateDB(db, "ChoiceQuestions", queryChoiceQuesion).then((result) => {
+                listChoiceQuestions = result;
+            }).catch((err) => {
+                console.log(err);
+            }),
+            questionFunction.aggregateDB(db, "FillQuestions", queryFillQuesion).then((result) => {
+                listFillQuestions = result;;
+            }).catch((err) => {
+                console.log(err);
+            })]
+        ).then((result) => {
+            res.status(200);
+            res.json({
+                listChoiceQuestions: listChoiceQuestions,
+                listFillQuestions: listFillQuestions
+            })
+        })
+    }).catch((err) => {
+        console.log(err);
+        res.status(400);
+        res.json({
+            message: "The topic is not existed"
+        })
+    })
 }
 
 function insertChoiceQuestionIntoTopic(req, res){
     const bodyTmp = req.swagger.params.body.value;
-    const db = req.app.db;``
+    const db = req.app.db;
     const body = handlerDataChoiceQuestion(bodyTmp);
 
 
@@ -219,17 +290,28 @@ function verifyAnswer(req, res){
         return;
     }
 
+    var option = {
+        fields: {
+            answerRight: 1,
+            explainRight: 1,
+            suggest: 1,
+        }
+    }
+
     if(body.typeQuestion === 'choice'){
-        questionFunction.findOneDB(db, 'ChoiceQuestions', {_id: ObjectId(questionId)}).then((result) => {
+        questionFunction.findOneDB(db, 'ChoiceQuestions', {_id: ObjectId(questionId)}, option).then((result) => {
+            console.log(result)
             if(result.answerRight === body.answer){
                 res.status(200);
                 res.json({
-                    result: true
+                    result: true,
+                    record: result.explainRight
                 })
             }else{
                 res.status(200);
                 res.json({
-                    result: false
+                    result: false,
+                    record: result.suggest
                 })
             }
         }).catch((err) => {
@@ -241,7 +323,7 @@ function verifyAnswer(req, res){
     }
 
     if(body.typeQuestion === 'fill'){
-        questionFunction.findOneDB(db, 'FillQuestions', {_id: ObjectId(questionId)}).then((result) => {
+        questionFunction.findOneDB(db, 'FillQuestions', {_id: ObjectId(questionId)}, option).then((result) => {
             if(result.answerRight === body.answer){
                 res.status(200);
                 res.json({
