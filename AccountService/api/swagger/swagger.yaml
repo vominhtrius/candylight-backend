@@ -4,6 +4,7 @@ info:
   title: Quan Ly Du An Phan Men
 # during dev, should point to your local machine
 host: 103.114.107.16:8001
+#host: locahost:8001
 # basePath prefixes all resource paths 
 basePath: /api
 # 
