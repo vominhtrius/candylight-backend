@@ -384,7 +384,7 @@ function updateInfo(req, res) {
   var emailParent = body.value.emailParent;
   var phoneParent = body.value.phoneParent;
   var regionParent = body.value.regionParent;
-
+  new String();
 
   if (firstName == "") {
     res.json({

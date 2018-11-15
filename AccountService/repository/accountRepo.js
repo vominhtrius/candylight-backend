@@ -8,7 +8,7 @@ exports.insert = (data, callback) => {
 }
 
 exports.update = (data, dataNew, callback) => {
-    return db.insert(data, dataNew, collection, callback);
+    return db.update(data, dataNew, collection, callback);
 }
 
 exports.findOne = (data, callback) => {
