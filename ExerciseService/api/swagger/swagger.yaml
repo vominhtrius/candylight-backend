@@ -157,7 +157,7 @@ paths:
       parameters:
         - name: questionId
           in: path
-          description: id of topic
+          description: id of question
           required: true
           type: string
         - name: body
