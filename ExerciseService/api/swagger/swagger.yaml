@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Hello World App
 # during dev, should point to your local machine
-host: localhost:8004
+host: http://103.114.107.16:8004
 # basePath prefixes all resource paths 
 basePath: /api/exercise
 # 
