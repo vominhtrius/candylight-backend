@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: Exercise Service
 # during dev, should point to your local machine
 host: 103.114.107.16:8004
 # basePath prefixes all resource paths 
