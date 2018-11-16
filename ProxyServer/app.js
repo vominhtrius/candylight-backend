@@ -10,6 +10,8 @@ const httpProxy = require('http-proxy');
 const accountServiceRoute = require('./api/routes/account-service.js');
 const chatServiceRoute = require('./api/routes/chat-service.js');
 const learningServiceRoute = require('./api/routes/learning-service.js');
+const exerciseServiceRoute = require('./api/routes/exercise-service.js');
+
 
 ///////////////////////////////////////////
 var app = express();
@@ -33,6 +35,7 @@ app.use(cors());
 accountServiceRoute(app, apiProxy);
 chatServiceRoute(app, apiProxy);
 learningServiceRoute(app, apiProxy);
+exerciseServiceRoute(app, apiProxy);
 
 ///////////////////////////////////////
 app.use(bodyParser.json());
