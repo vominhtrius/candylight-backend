@@ -8,7 +8,7 @@ const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
 const jwt = require('jsonwebtoken')
 const configJWT = require('./api/helpers/configJWT.json');
 const database = require('./database/database.js');
-
+const users = require('./models/users');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 module.exports = app; // for testing
@@ -42,6 +42,9 @@ database.connect().then((db)=>{
   console.log("connect database err: " + err);
   throw(err);
 })
+
+app.users = new users(app);
+
 ////////////////////////////////////////////////////////////////////
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {

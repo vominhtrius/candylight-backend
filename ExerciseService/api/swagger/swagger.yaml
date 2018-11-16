@@ -35,13 +35,13 @@ paths:
           description: id of topic
           required: true
           type: string
-        - name: numberquestion
+        - name: numberQuestion
           in: query
           description: number question wanted get
           required: true
-          type: string
-      # security:
-      # - auth0: []
+          type: integer
+      security:
+      - auth0: []
       responses:
         "200":
           description: Success
@@ -64,8 +64,8 @@ paths:
           description: fields of question
           schema:
             $ref: "#/definitions/ChoiceQuestionRequest"           
-      # security:
-      # - auth0: []
+      security:
+      - auth0: []
       responses:
         "200":
           description: Success
@@ -87,8 +87,8 @@ paths:
           description: fields of question
           schema:
             $ref: "#/definitions/ChoiceQuestionUpdateRequest"  
-      # security:
-      # - auth0: []
+      security:
+      - auth0: []
       responses:
         "200":
           description: Success
@@ -112,8 +112,8 @@ paths:
           description: fields of question
           schema:
             $ref: "#/definitions/FillQuestionRequest"           
-      # security:
-      # - auth0: []
+      security:
+      - auth0: []
       responses:
         "200":
           description: Success
@@ -135,8 +135,8 @@ paths:
           description: fields of question
           schema:
             $ref: "#/definitions/FillQuestionUpdateRequest"  
-      # security:
-      # - auth0: []
+      security:
+      - auth0: []
       responses:
         "200":
           description: Success
@@ -165,8 +165,8 @@ paths:
           description: fields of question
           schema:
             $ref: "#/definitions/AnswerRequest"           
-      # security:
-      # - auth0: []
+      security:
+      - auth0: []
       responses:
         "200":
           description: Success
@@ -179,6 +179,30 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   
+  /resultexercise/{topicId}:
+    x-swagger-router-controller: question
+    get:
+      description: Returns result exercise of topic
+      operationId: getResultExerciseOfTopic
+      parameters:
+        - name: topicId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ResultExercise"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -303,7 +327,17 @@ definitions:
         type: string
       suggest:
         type: string
-        
+  ResultExercise:
+    type: object
+    required:
+      - point
+    properties:
+      numberQuestion:
+        type: integer
+      numberAnswerRight:
+        type: integer
+      point:
+        type: integer
   MessageResponse:
     type: object
     required:
