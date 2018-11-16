@@ -269,6 +269,8 @@ function signup(req, res) {
   var passWord = body.value.passWord;
   var rePassWord = body.value.rePassWord;
   var email = body.value.email;
+  var fName = body.value.firstName;
+  
   if (userName === "") {
     res.json({
       success: false,
@@ -297,11 +299,18 @@ function signup(req, res) {
     });
     return;
   }
+  if (fName === "") {
+    res.json({
+      success: false,
+      message: 'Missing firstName'
+    });
+    return;
+  }
   var user = {
     userName: userName,
     passWord: md5(passWord),
     email: email,
-    firstName: "",
+    firstName: fName,
     lastName: "",
     region: "",
     school: "",
@@ -313,11 +322,13 @@ function signup(req, res) {
     regionParent: "",
     pointReward: 0,
   };
+  console.log(user);
   accountRepo.insert(user, (err, result) => {
     if (err) {
+      console.log(err);
       var mess = "";
       if (err.code === 11000) {
-        mess = "Username already exists";
+        mess = "Username or email already exists, please try again!";
       } else {
         mess = "Error undefine, StatusCode: " + err.code;
       }
@@ -374,7 +385,6 @@ function updateInfo(req, res) {
   var phoneParent = body.value.phoneParent;
   var regionParent = body.value.regionParent;
 
-
   if (firstName == "") {
     res.json({
       success: false,
@@ -382,77 +392,77 @@ function updateInfo(req, res) {
     });
     return;
   }
-  if (lastName == "") {
-    res.json({
-      success: false,
-      message: 'Missing lastName'
-    });
-    return;
-  }
-  if (region == "") {
-    res.json({
-      success: false,
-      message: 'Missing region'
-    });
-    return;
-  }
-  if (school == "") {
-    res.json({
-      success: false,
-      message: 'Missing school'
-    });
-    return;
-  }
-  if (capacity == "") {
-    res.json({
-      success: false,
-      message: 'Missing capacity'
-    });
-    return;
-  }
-  if (fNameParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing First Name Parent'
-    });
-    return;
-  }
-  if (lNameParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Last Name Parent'
-    });
-    return;
-  }
-  if (emailParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Email Parent'
-    });
-    return;
-  }
-  if (phoneParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Phone Parent'
-    });
-    return;
-  }
-  if (regionParent == "") {
-    res.json({
-      success: false,
-      message: 'Missing Region Parent'
-    });
-    return;
-  }
-  if(phoneParent == "") {
-    res.json({success: false, message: 'Missing Phone Parent'});
-    return;
-  }
-  if(regionParent == "") {
-    res.json({success: false, message: 'Missing Region Parent'});
-    return;
-  }
+  // if (lastName == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing lastName'
+  //   });
+  //   return;
+  // }
+  // if (region == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing region'
+  //   });
+  //   return;
+  // }
+  // if (school == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing school'
+  //   });
+  //   return;
+  // }
+  // if (capacity == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing capacity'
+  //   });
+  //   return;
+  // }
+  // if (fNameParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing First Name Parent'
+  //   });
+  //   return;
+  // }
+  // if (lNameParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Last Name Parent'
+  //   });
+  //   return;
+  // }
+  // if (emailParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Email Parent'
+  //   });
+  //   return;
+  // }
+  // if (phoneParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Phone Parent'
+  //   });
+  //   return;
+  // }
+  // if (regionParent == "") {
+  //   res.json({
+  //     success: false,
+  //     message: 'Missing Region Parent'
+  //   });
+  //   return;
+  // }
+  // if(phoneParent == "") {
+  //   res.json({success: false, message: 'Missing Phone Parent'});
+  //   return;
+  // }
+  // if(regionParent == "") {
+  //   res.json({success: false, message: 'Missing Region Parent'});
+  //   return;
+  // }
 
   var userProfile = {
     firstName: firstName,

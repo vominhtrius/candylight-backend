@@ -13,7 +13,7 @@ module.exports = {
   getAll: get,
   add: add,
   update: update,
-  findOne: getOne,
+  getOne: getOne,
 };
 
 function get(req, res) {
@@ -23,7 +23,7 @@ function get(req, res) {
     if(!value)
       value = [];
     res.status(200);
-    res.json({success: true, value: {heads: value } });
+    res.json({success: true, value: {categories: value } });
   }).catch( error => {
     res.status(200);
     res.json({success: false, message: err.err });
@@ -31,6 +31,7 @@ function get(req, res) {
 }
 
 function getOne(req, res) {
+  console.log(categoryId);
   
   var categoryId = req.swagger.params.categoryId.value.trim();
   //middleware

@@ -19,7 +19,7 @@ var config = {
         var token = "" + scopesOrApiKey;
         jwt.verify(token, configJWT.secret , function(err, decode) {
           if (err) {
-            req.userId = undefined;
+            next(new Error('access denied!'));
           } else {
             req.userId = decode.userId;
           }
