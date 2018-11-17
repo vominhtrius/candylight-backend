@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Exercise Service
 # during dev, should point to your local machine
-host: 127.0.0.1:8004
+host: 103.114.107.16:8004
 # basePath prefixes all resource paths 
 basePath: /api/exercise
 # 
@@ -357,8 +357,10 @@ definitions:
       - answer
     properties:
       typeQuestion:
+        description: choice or fill
         type: string
       answer:
+        description: if choice question, answer ansA, ansB, ansC, ansD. if fill answer, answer any thing
         type: string
         
   AnswerResponse:
