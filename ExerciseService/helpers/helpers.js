@@ -1,0 +1,6 @@
+const TIMEANSWER = 2;
+const NUMBERQUESTION_TOPIC = 10
+module.exports ={
+    TIMEANSWER,
+    NUMBERQUESTION_TOPIC
+}

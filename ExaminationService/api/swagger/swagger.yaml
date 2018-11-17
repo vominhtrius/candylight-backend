@@ -1,11 +1,17 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: Examination Service
 # during dev, should point to your local machine
-host: localhost:10010
+host: localhost:8005
 # basePath prefixes all resource paths 
-basePath: /
+basePath: /api/examination
+securityDefinitions:
+  auth0:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "Authorization logged to application"
 # 
 schemes:
   # tip: remove http to make production-grade
@@ -18,35 +24,47 @@ consumes:
 produces:
   - application/json
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
-    get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
+  /exam:
+    x-swagger-router-controller: exam
+    post:
+      description: insert exam in db
+      operationId: insertExam
       parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/Exam"
+      # security:
+      #   - auth0: []
       responses:
         "200":
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
+            $ref: "#/definitions/ExamResponse"
         # responses may fall through to errors
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /swagger:
-    x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
+  Exam:
+    properties:
+      title:
+        description: title of exam. Such as De01, De02, De03
+        type: string
+      time:
+        description: time of exam
+        type: string
+      timeDo:
+        description: time do exam. Such as 18000s
+        type: integer
+      numberQuestion:
+        description: number question of exam
+        type: integer
+  ExamResponse:
     required:
       - message
     properties:

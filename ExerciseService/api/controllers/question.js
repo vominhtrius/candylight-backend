@@ -3,6 +3,7 @@ var util = require('util');
 const questionFunction = require('../../models/question.js');
 const { ObjectId } = require('mongodb');
 const { OrderedMap } = require('immutable');
+const helpers = require('../../helpers/helpers.js');
 
 module.exports = {
     getListQuestionsOfTopic: getListQuestionsOfTopic,
@@ -33,8 +34,8 @@ function getListQuestionsOfTopic(req, res){
     const userId = req.userId;
     //get list choice question in db
 
-    if(numberQuestion < 10){
-        numberQuestion = 10;
+    if(numberQuestion < helpers.NUMBERQUESTION_TOPIC){
+        numberQuestion = helpers.NUMBERQUESTION_TOPIC;
     }
 
     var rand = Math.floor(Math.random() * (numberQuestion - 1)) + 1;
@@ -434,13 +435,13 @@ function handleAnswerQuestion(res, db, nameCollection, topic, questionId, answer
                 topic.questionId = questionId;
                 topic.numberAnswer = topic.numberAnswer + 1;
                 topic.numberAnswerRight = topic.numberAnswerRight + 1;
-                topic.timeAnswer = 2;
+                topic.timeAnswer = helpers.TIMEANSWER;
                 res.status(200);
                 res.json({
                     result: true,
                     record: result.explainRight
                 })
-            }else if(topic.timeAnswer < 2){
+            }else if(topic.timeAnswer < helpers.TIMEANSWER){
                 topic.timeAnswer = topic.timeAnswer + 1;
                 res.status(200);
                 res.json({
@@ -463,7 +464,7 @@ function handleAnswerQuestion(res, db, nameCollection, topic, questionId, answer
                     result: false,
                     record: result.suggest
                 })
-            }else if(topic.timeAnswer < 2){
+            }else if(topic.timeAnswer < helpers.TIMEANSWER){
                 topic.timeAnswer = topic.timeAnswer + 1;
                 res.status(200);
                 res.json({
