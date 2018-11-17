@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Exercise Service
 # during dev, should point to your local machine
-host: 103.114.107.16:8004
+host: 127.0.0.1:8004
 # basePath prefixes all resource paths 
 basePath: /api/exercise
 # 
@@ -149,7 +149,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
             
-  /answer/{questionId}:
+  /answer/{topicId}/{questionId}:
     x-swagger-router-controller: question
     post:
       description: verify answer
@@ -158,6 +158,11 @@ paths:
         - name: questionId
           in: path
           description: id of question
+          required: true
+          type: string
+        - name: topicId
+          in: path
+          description: id of topic
           required: true
           type: string
         - name: body
