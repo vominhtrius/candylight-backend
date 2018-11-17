@@ -93,14 +93,14 @@ function getListQuestionsOfTopic(req, res){
         }
     ]
 
-    questionFunction.findOneDB(db, "Topics", {_id: topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: topicId}).then((result) => {
         Promise.all([
-            questionFunction.aggregateDB(db, "ChoiceQuestionExercise", queryChoiceQuesion).then((result) => {
+            questionFunction.aggregateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, queryChoiceQuesion).then((result) => {
                 listChoiceQuestions = result;
             }).catch((err) => {
                 console.log(err);
             }),
-            questionFunction.aggregateDB(db, "FillQuestionExercise", queryFillQuesion).then((result) => {
+            questionFunction.aggregateDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, queryFillQuesion).then((result) => {
                 listFillQuestions = result;;
             }).catch((err) => {
                 console.log(err);
@@ -136,16 +136,16 @@ function insertChoiceQuestionIntoTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //check content question existed in db
-        questionFunction.findOneDB(db, "ChoiceQuestionExercise", {content: body.content}).then((result) => {
+        questionFunction.findOneDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, {content: body.content}).then((result) => {
             res.status(400);
             res.json({
                 message: "The question is already existed"
             })
         }).catch((err) =>{
             //not exist
-            questionFunction.insertOneDB(db, "ChoiceQuestionExercise", body).then((result) => {
+            questionFunction.insertOneDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, body).then((result) => {
                 console.log(result.ops);
                 res.status(200);
                 res.json({
@@ -182,7 +182,7 @@ function updateChoiceQuestionOfTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //update
         var update = {
             $set: {
@@ -195,7 +195,7 @@ function updateChoiceQuestionOfTopic(req, res){
             }
         }
 
-        questionFunction.findOneAndUpdateDB(db, "ChoiceQuestionExercise", {_id: body.id}, update).then((result) => {
+        questionFunction.findOneAndUpdateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, {_id: body.id}, update).then((result) => {
             res.status(200);
             res.json({
                 message: "Update choice quesion successed"
@@ -228,16 +228,16 @@ function insertFillQuestionIntoTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //check content question existed in db
-        questionFunction.findOneDB(db, "FillQuestionExercise", {content: body.content}).then((result) => {
+        questionFunction.findOneDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, {content: body.content}).then((result) => {
             res.status(400);
             res.json({
                 message: "The question is already existed"
             })
         }).catch((err) =>{
             //not exist
-            questionFunction.insertOneDB(db, "FillQuestionExercise", body).then((result) => {
+            questionFunction.insertOneDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, body).then((result) => {
                 console.log(result.ops);
                 res.status(200);
                 res.json({
@@ -274,7 +274,7 @@ function updateFillQuestionOfTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //update
         var update = {
             $set: {
@@ -286,7 +286,7 @@ function updateFillQuestionOfTopic(req, res){
             }
         }
 
-        questionFunction.findOneAndUpdateDB(db, "FillQuestionExercise", {_id: body.id}, update).then((result) => {
+        questionFunction.findOneAndUpdateDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, {_id: body.id}, update).then((result) => {
             res.status(200);
             res.json({
                 message: "Update fill quesion successed"
@@ -318,9 +318,9 @@ function verifyAnswer(req, res){
     var topic =  mapTopic.get(topicId);
 
     if(body.typeQuestion === 'choice' && body.answer.length !== 0){
-        handleAnswerQuestion(res, db, 'ChoiceQuestionExercise', topic, questionId, body.answer);
+        handleAnswerQuestion(res, db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, topic, questionId, body.answer);
     }else if(body.typeQuestion === 'fill' && body.answer.length !== 0){
-        handleAnswerQuestion(res, db, 'FillQuestionExercise', topic, questionId, body.answer);
+        handleAnswerQuestion(res, db, helpers.NAME_DB_FILLQUESTION_EXERCISE, topic, questionId, body.answer);
     }else{
         res.status(400);
         res.json({
@@ -342,15 +342,15 @@ function getResultExerciseOfTopic(req, res){
             pointReward: 1
         }
     }
-    questionFunction.findOneDB(db, "Users", {_id: ObjectId(userId)}, option).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, option).then((result) => {
         const point = result.pointReward + topic.numberAnswerRight;
         var update = {
             $set:{
                 pointReward: point
             }
         }
- 
-        questionFunction.findOneAndUpdateDB(db, "Users", {_id: ObjectId(userId)}, update).then((result) => {
+
+        questionFunction.findOneAndUpdateDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, update).then((result) => {
             if(topic.numberQuestion === topic.numberAnswer){
                 res.status(200);
                 res.json({

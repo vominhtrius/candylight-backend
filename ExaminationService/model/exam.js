@@ -33,11 +33,16 @@ const aggregateDB = (db, collectionName, query, option={}, limit) => {
 }
 
 const countDocument = (db, collectionName, query, option={}) => {
-    
+    return new Promise((resolve, reject) => {
+        db.collection(collectionName).find(query).count((err, result) => {
+            return err ? reject(err) : resolve(result);
+        })
+    })
 }
 module.exports = {
     insertOneDB,
     findOneDB,
     findOneAndUpdateDB,
-    aggregateDB
+    aggregateDB,
+    countDocument
 }
