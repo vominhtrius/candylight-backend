@@ -315,20 +315,18 @@ function verifyAnswer(req, res){
 
     var mapTopic = req.app.users.getUser(userId);
     var topic =  mapTopic.get(topicId);
-    console.log("topic: " + topic);
-    console.log("mapTopic: " + mapTopic);
 
-    if((body.typeQuestion !== 'choice' && body.typeQuestion !== 'fill') || body.answer.length === 0){
+    if(body.typeQuestion === 'choice' && body.answer.length !== 0){
+        handleAnswerQuestion(res, db, 'ChoiceQuestionExercise', topic, questionId, body.answer);
+    }else if(body.typeQuestion === 'fill' && body.answer.length !== 0){
+        handleAnswerQuestion(res, db, 'FillQuestionExercise', topic, questionId, body.answer);
+    }else{
         res.status(400);
         res.json({
             message: "Invalid the answer"
         })
         return;
     }
-    
-    handleAnswerChoiceQuestion(res, db, topic, body, questionId);
-    handleAnswerFillQuestion(res, db, topic, body, questionId);
-    console.log(mapTopic.get(topicId))
 }
 
 function getResultExerciseOfTopic(req, res){
@@ -350,7 +348,7 @@ function getResultExerciseOfTopic(req, res){
                 pointReward: point
             }
         }
-
+ 
         questionFunction.findOneAndUpdateDB(db, "Users", {_id: ObjectId(userId)}, update).then((result) => {
             if(topic.numberQuestion === topic.numberAnswer){
                 res.status(200);
@@ -362,7 +360,7 @@ function getResultExerciseOfTopic(req, res){
             }else{
                 res.status(400);
                 res.json({
-                    message: "Invalid the request"
+                    message: "Invalid the request. Number answer not equal number question"
                 })
             }
         }).catch((err) => {
@@ -421,7 +419,7 @@ function handleDataAnswer(data){
     return body;
 }
 
-function handleAnswerChoiceQuestion(res, db, topic, body, questionId){
+function handleAnswerQuestion(res, db, nameCollection, topic, questionId, answer){
     var option = {
         fields: {
             answerRight: 1,
@@ -429,133 +427,60 @@ function handleAnswerChoiceQuestion(res, db, topic, body, questionId){
             suggest: 1,
         }
     }
-
-    if(body.typeQuestion === 'choice'){
-        console.log("choice question");
-        console.log(topic);
-
-        questionFunction.findOneDB(db, 'ChoiceQuestionExercise', {_id: ObjectId(questionId)}, option).then((result) => {
-            if(result.answerRight === body.answer){
-                if(topic.questionId !== questionId && (topic.numberAnswer < topic.numberQuestion)){
-                    topic.questionId = questionId;
-                    topic.numberAnswer = topic.numberAnswer + 1;
-                    topic.numberAnswerRight = topic.numberAnswerRight + 1;
-                    topic.timeAnswer = 2;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else if(topic.timeAnswer < 2){
-                    topic.timeAnswer = topic.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }
+    
+    questionFunction.findOneDB(db, nameCollection, {_id: ObjectId(questionId)}, option).then((result) => {
+        if(result.answerRight === answer){
+            if(topic.questionId !== questionId && (topic.numberAnswer < topic.numberQuestion)){
+                topic.questionId = questionId;
+                topic.numberAnswer = topic.numberAnswer + 1;
+                topic.numberAnswerRight = topic.numberAnswerRight + 1;
+                topic.timeAnswer = 2;
+                res.status(200);
+                res.json({
+                    result: true,
+                    record: result.explainRight
+                })
+            }else if(topic.timeAnswer < 2){
+                topic.timeAnswer = topic.timeAnswer + 1;
+                res.status(200);
+                res.json({
+                    result: true,
+                    record: result.explainRight
+                })
             }else{
-                if(topic.questionId !== questionId){
-                    topic.questionId = questionId;
-                    topic.numberAnswer = topic.numberAnswer + 1;
-                    topic.timeAnswer = 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.suggest
-                    })
-                }else if(topic.timeAnswer < 2){
-                    topic.timeAnswer = topic.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.answerRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }
-            } 
-        }).catch((err) => {
-            res.status(400);
-            res.json({
-                message: "Not found answer"
-            })
-        })
-    }
-}
-
-function handleAnswerFillQuestion(res, db, topic, body, questionId){
-    var option = {
-        fields: {
-            answerRight: 1,
-            explainRight: 1,
-            suggest: 1,
-        }
-    }
-
-    if(body.typeQuestion === 'fill'){
-        questionFunction.findOneDB(db, 'FillQuestionExercise', {_id: ObjectId(questionId)}, option).then((result) => {
-            if(result.answerRight === body.answer){
-                if(topic.questionId !== questionId && (topic.numberAnswer < topic.numberQuestion)){
-                    topic.questionId = questionId;
-                    topic.numberAnswer = topic.numberAnswer + 1;
-                    topic.numberAnswerRight = topic.numberAnswerRight + 1;
-                    topic.timeAnswer = 2;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else if(topic.timeAnswer < 2){
-                    topic.timeAnswer = topic.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }
-            }else{
-                if(topic.questionId !== questionId){
-                    topic.questionId = questionId;
-                    topic.numberAnswer = topic.numberAnswer + 1;
-                    topic.timeAnswer = 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.suggest
-                    })
-                }else if(topic.timeAnswer < 2){
-                    topic.timeAnswer = topic.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.answerRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }            
+                res.status(400);
+                res.json({
+                    message: "Invalid the request. Too many answers"
+                })
             }
-        }).catch((err) => {
-            res.status(400);
-            res.json({
-                message: "Not found answer"
-            })
+        }else{
+            if(topic.questionId !== questionId){
+                topic.questionId = questionId;
+                topic.numberAnswer = topic.numberAnswer + 1;
+                topic.timeAnswer = 1;
+                res.status(200);
+                res.json({
+                    result: false,
+                    record: result.suggest
+                })
+            }else if(topic.timeAnswer < 2){
+                topic.timeAnswer = topic.timeAnswer + 1;
+                res.status(200);
+                res.json({
+                    result: false,
+                    record: result.answerRight
+                })
+            }else{
+                res.status(400);
+                res.json({
+                    message: "Invalid the request. Too many answers"
+                })
+            }
+        } 
+    }).catch((err) => {
+        res.status(400);
+        res.json({
+            message: "Not found answer"
         })
-    }
+    })
 }
