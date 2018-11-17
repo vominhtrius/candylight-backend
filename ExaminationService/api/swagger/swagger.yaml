@@ -1,0 +1,78 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Examination Service
+# during dev, should point to your local machine
+host: localhost:8005
+# basePath prefixes all resource paths 
+basePath: /api/examination
+securityDefinitions:
+  auth0:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "Authorization logged to application"
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /exam:
+    x-swagger-router-controller: exam
+    post:
+      description: insert exam in db
+      operationId: insertExam
+      parameters:
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/Exam"
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+# complex objects have schema definitions
+definitions:
+  Exam:
+    properties:
+      title:
+        description: title of exam. Such as De01, De02, De03
+        type: string
+      time:
+        description: time of exam
+        type: string
+      timeDo:
+        description: time do exam. Such as 18000s
+        type: integer
+      numberQuestion:
+        description: number question of exam
+        type: integer
+  ExamResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string

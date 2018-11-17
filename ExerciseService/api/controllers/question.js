@@ -2,6 +2,8 @@
 var util = require('util');
 const questionFunction = require('../../models/question.js');
 const { ObjectId } = require('mongodb');
+const { OrderedMap } = require('immutable');
+const helpers = require('../../helpers/helpers.js');
 
 module.exports = {
     getListQuestionsOfTopic: getListQuestionsOfTopic,
@@ -13,6 +15,18 @@ module.exports = {
     getResultExerciseOfTopic: getResultExerciseOfTopic
 };
 
+function insertUser(users, userId, topicId, object){
+    var mapTopicOfUser = users.getUser(userId);
+    if(mapTopicOfUser){
+        mapTopicOfUser = mapTopicOfUser.set(topicId.toString(), object);
+        users.insertUser(userId, mapTopicOfUser);
+    }else{
+        var mapTopic = new OrderedMap();
+        mapTopic = mapTopic.set(topicId.toString(), object);
+        users.insertUser(userId, mapTopic);
+    }
+}
+
 function getListQuestionsOfTopic(req, res){
     const topicId = ObjectId(req.swagger.params.topicId.value);
     var numberQuestion = req.swagger.params.numberQuestion.value;
@@ -20,9 +34,9 @@ function getListQuestionsOfTopic(req, res){
     const userId = req.userId;
     //get list choice question in db
 
-    // if(numberQuestion < 10){
-    //     numberQuestion = 10;
-    // }
+    if(numberQuestion < helpers.NUMBERQUESTION_TOPIC){
+        numberQuestion = helpers.NUMBERQUESTION_TOPIC;
+    }
 
     var rand = Math.floor(Math.random() * (numberQuestion - 1)) + 1;
     var listChoiceQuestions = [];
@@ -30,7 +44,6 @@ function getListQuestionsOfTopic(req, res){
     
     //add user vao listUser.
     const object = {
-        topicId: topicId,
         numberQuestion: numberQuestion,
         questionId: 0,
         numberAnswer: 0,
@@ -38,7 +51,7 @@ function getListQuestionsOfTopic(req, res){
         timeAnswer: 0
     }
 
-    req.app.users.insertUser(userId, object);
+    insertUser(req.app.users, userId, topicId, object);
 
     const queryChoiceQuesion = [
         {
@@ -80,14 +93,14 @@ function getListQuestionsOfTopic(req, res){
         }
     ]
 
-    questionFunction.findOneDB(db, "Topics", {_id: topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: topicId}).then((result) => {
         Promise.all([
-            questionFunction.aggregateDB(db, "ChoiceQuestionExercise", queryChoiceQuesion).then((result) => {
+            questionFunction.aggregateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, queryChoiceQuesion).then((result) => {
                 listChoiceQuestions = result;
             }).catch((err) => {
                 console.log(err);
             }),
-            questionFunction.aggregateDB(db, "FillQuestionExercise", queryFillQuesion).then((result) => {
+            questionFunction.aggregateDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, queryFillQuesion).then((result) => {
                 listFillQuestions = result;;
             }).catch((err) => {
                 console.log(err);
@@ -123,16 +136,16 @@ function insertChoiceQuestionIntoTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //check content question existed in db
-        questionFunction.findOneDB(db, "ChoiceQuestionExercise", {content: body.content}).then((result) => {
+        questionFunction.findOneDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, {content: body.content}).then((result) => {
             res.status(400);
             res.json({
                 message: "The question is already existed"
             })
         }).catch((err) =>{
             //not exist
-            questionFunction.insertOneDB(db, "ChoiceQuestionExercise", body).then((result) => {
+            questionFunction.insertOneDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, body).then((result) => {
                 console.log(result.ops);
                 res.status(200);
                 res.json({
@@ -169,7 +182,7 @@ function updateChoiceQuestionOfTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //update
         var update = {
             $set: {
@@ -182,7 +195,7 @@ function updateChoiceQuestionOfTopic(req, res){
             }
         }
 
-        questionFunction.findOneAndUpdateDB(db, "ChoiceQuestionExercise", {_id: body.id}, update).then((result) => {
+        questionFunction.findOneAndUpdateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, {_id: body.id}, update).then((result) => {
             res.status(200);
             res.json({
                 message: "Update choice quesion successed"
@@ -215,16 +228,16 @@ function insertFillQuestionIntoTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //check content question existed in db
-        questionFunction.findOneDB(db, "FillQuestionExercise", {content: body.content}).then((result) => {
+        questionFunction.findOneDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, {content: body.content}).then((result) => {
             res.status(400);
             res.json({
                 message: "The question is already existed"
             })
         }).catch((err) =>{
             //not exist
-            questionFunction.insertOneDB(db, "FillQuestionExercise", body).then((result) => {
+            questionFunction.insertOneDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, body).then((result) => {
                 console.log(result.ops);
                 res.status(200);
                 res.json({
@@ -261,7 +274,7 @@ function updateFillQuestionOfTopic(req, res){
         return;
     }
 
-    questionFunction.findOneDB(db, "Topics", {_id: body.topicId}).then((result) => {
+    questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: body.topicId}).then((result) => {
         //update
         var update = {
             $set: {
@@ -273,7 +286,7 @@ function updateFillQuestionOfTopic(req, res){
             }
         }
 
-        questionFunction.findOneAndUpdateDB(db, "FillQuestionExercise", {_id: body.id}, update).then((result) => {
+        questionFunction.findOneAndUpdateDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, {_id: body.id}, update).then((result) => {
             res.status(200);
             res.json({
                 message: "Update fill quesion successed"
@@ -295,55 +308,60 @@ function updateFillQuestionOfTopic(req, res){
 
 function verifyAnswer(req, res){
     const questionId = req.swagger.params.questionId.value;
+    const topicId = req.swagger.params.topicId.value;
     const bodyTmp = req.swagger.params.body.value;
     const db = req.app.db;
     const body = handleDataAnswer(bodyTmp);
     const userId = req.userId;
 
-    var user = req.app.users.getUser(userId);
+    var mapTopic = req.app.users.getUser(userId);
+    var topic =  mapTopic.get(topicId);
 
-    if((body.typeQuestion !== 'choice' && body.typeQuestion !== 'fill') || body.answer.length === 0){
+    if(body.typeQuestion === 'choice' && body.answer.length !== 0){
+        handleAnswerQuestion(res, db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, topic, questionId, body.answer);
+    }else if(body.typeQuestion === 'fill' && body.answer.length !== 0){
+        handleAnswerQuestion(res, db, helpers.NAME_DB_FILLQUESTION_EXERCISE, topic, questionId, body.answer);
+    }else{
         res.status(400);
         res.json({
             message: "Invalid the answer"
         })
         return;
     }
-
-    handleAnswerChoiceQuestion(res, db, user, body, questionId);
-    handleAnswerFillQuestion(res, db, user, body, questionId);
 }
 
 function getResultExerciseOfTopic(req, res){
     const topicId = req.swagger.params.topicId.value;
     const userId = req.userId;
     const db = req.app.db;
-    const user = req.app.users.getUser(userId);
+    const mapTopic = req.app.users.getUser(userId);
+    const topic = mapTopic.get(topicId);
+
     const option = {
         fields: {
             pointReward: 1
         }
     }
-    questionFunction.findOneDB(db, "Users", {_id: ObjectId(userId)}, option).then((result) => {
-        const point = result.pointReward + user.numberAnswerRight;
+    questionFunction.findOneDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, option).then((result) => {
+        const point = result.pointReward + topic.numberAnswerRight;
         var update = {
             $set:{
                 pointReward: point
             }
         }
 
-        questionFunction.findOneAndUpdateDB(db, "Users", {_id: ObjectId(userId)}, update).then((result) => {
-            if((topicId === user.topicId.toString()) && (user.numberQuestion === user.numberAnswer)){
+        questionFunction.findOneAndUpdateDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, update).then((result) => {
+            if(topic.numberQuestion === topic.numberAnswer){
                 res.status(200);
                 res.json({
-                    numberQuestion: user.numberQuestion,
-                    numberAnswerRight: user.numberAnswerRight,
-                    point: user.numberAnswerRight
+                    numberQuestion: topic.numberQuestion,
+                    numberAnswerRight: topic.numberAnswerRight,
+                    point: topic.numberAnswerRight
                 })
             }else{
                 res.status(400);
                 res.json({
-                    message: "Invalid the request"
+                    message: "Invalid the request. Number answer not equal number question"
                 })
             }
         }).catch((err) => {
@@ -402,7 +420,7 @@ function handleDataAnswer(data){
     return body;
 }
 
-function handleAnswerChoiceQuestion(res, db, user, body, questionId){
+function handleAnswerQuestion(res, db, nameCollection, topic, questionId, answer){
     var option = {
         fields: {
             answerRight: 1,
@@ -410,130 +428,60 @@ function handleAnswerChoiceQuestion(res, db, user, body, questionId){
             suggest: 1,
         }
     }
-
-    if(body.typeQuestion === 'choice'){
-        questionFunction.findOneDB(db, 'ChoiceQuestionExercise', {_id: ObjectId(questionId)}, option).then((result) => {
-            if(result.answerRight === body.answer){
-                if(user.questionId !== questionId && (user.numberAnswer < user.numberQuestion)){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.numberAnswerRight = user.numberAnswerRight + 1;
-                    user.timeAnswer = 2;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }
+    
+    questionFunction.findOneDB(db, nameCollection, {_id: ObjectId(questionId)}, option).then((result) => {
+        if(result.answerRight === answer){
+            if(topic.questionId !== questionId && (topic.numberAnswer < topic.numberQuestion)){
+                topic.questionId = questionId;
+                topic.numberAnswer = topic.numberAnswer + 1;
+                topic.numberAnswerRight = topic.numberAnswerRight + 1;
+                topic.timeAnswer = helpers.TIMEANSWER;
+                res.status(200);
+                res.json({
+                    result: true,
+                    record: result.explainRight
+                })
+            }else if(topic.timeAnswer < helpers.TIMEANSWER){
+                topic.timeAnswer = topic.timeAnswer + 1;
+                res.status(200);
+                res.json({
+                    result: true,
+                    record: result.explainRight
+                })
             }else{
-                if(user.questionId !== questionId){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.timeAnswer = 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.suggest
-                    })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.answerRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }
-            } 
-        }).catch((err) => {
-            res.status(400);
-            res.json({
-                message: "Not found answer"
-            })
-        })
-    }
-}
-
-function handleAnswerFillQuestion(res, db, user, body, questionId){
-    var option = {
-        fields: {
-            answerRight: 1,
-            explainRight: 1,
-            suggest: 1,
-        }
-    }
-
-    if(body.typeQuestion === 'fill'){
-        questionFunction.findOneDB(db, 'FillQuestionExercise', {_id: ObjectId(questionId)}, option).then((result) => {
-            if(result.answerRight === body.answer){
-                if(user.questionId !== questionId && (user.numberAnswer < user.numberQuestion)){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.numberAnswerRight = user.numberAnswerRight + 1;
-                    user.timeAnswer = 2;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: true,
-                        record: result.explainRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }
-            }else{
-                if(user.questionId !== questionId){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.timeAnswer = 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.suggest
-                    })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
-                    res.status(200);
-                    res.json({
-                        result: false,
-                        record: result.answerRight
-                    })
-                }else{
-                    res.status(400);
-                    res.json({
-                        message: "Invalid the request. Too many answers"
-                    })
-                }            
+                res.status(400);
+                res.json({
+                    message: "Invalid the request. Too many answers"
+                })
             }
-        }).catch((err) => {
-            res.status(400);
-            res.json({
-                message: "Not found answer"
-            })
+        }else{
+            if(topic.questionId !== questionId){
+                topic.questionId = questionId;
+                topic.numberAnswer = topic.numberAnswer + 1;
+                topic.timeAnswer = 1;
+                res.status(200);
+                res.json({
+                    result: false,
+                    record: result.suggest
+                })
+            }else if(topic.timeAnswer < helpers.TIMEANSWER){
+                topic.timeAnswer = topic.timeAnswer + 1;
+                res.status(200);
+                res.json({
+                    result: false,
+                    record: result.answerRight
+                })
+            }else{
+                res.status(400);
+                res.json({
+                    message: "Invalid the request. Too many answers"
+                })
+            }
+        } 
+    }).catch((err) => {
+        res.status(400);
+        res.json({
+            message: "Not found answer"
         })
-    }
+    })
 }
