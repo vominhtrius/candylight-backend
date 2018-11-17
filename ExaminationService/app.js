@@ -8,7 +8,7 @@ const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
 const jwt = require('jsonwebtoken')
 const configJWT = require('./api/helpers/configJWT.json');
 const database = require('./database/database.js');
-// const users = require('./models/users');
+// const users = require('./models/users');co
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 module.exports = app; // for testing
