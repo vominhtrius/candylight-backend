@@ -33,9 +33,9 @@ function getListQuestionsOfTopic(req, res){
     const userId = req.userId;
     //get list choice question in db
 
-    // if(numberQuestion < 10){
-    //     numberQuestion = 10;
-    // }
+    if(numberQuestion < 10){
+        numberQuestion = 10;
+    }
 
     var rand = Math.floor(Math.random() * (numberQuestion - 1)) + 1;
     var listChoiceQuestions = [];
