@@ -149,7 +149,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
             
-  /answer/{questionId}:
+  /answer/{topicId}/{questionId}:
     x-swagger-router-controller: question
     post:
       description: verify answer
@@ -158,6 +158,11 @@ paths:
         - name: questionId
           in: path
           description: id of question
+          required: true
+          type: string
+        - name: topicId
+          in: path
+          description: id of topic
           required: true
           type: string
         - name: body
@@ -352,8 +357,10 @@ definitions:
       - answer
     properties:
       typeQuestion:
+        description: choice or fill
         type: string
       answer:
+        description: if choice question, answer ansA, ansB, ansC, ansD. if fill answer, answer any thing
         type: string
         
   AnswerResponse:

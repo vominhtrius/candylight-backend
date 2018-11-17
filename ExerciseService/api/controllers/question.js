@@ -2,6 +2,7 @@
 var util = require('util');
 const questionFunction = require('../../models/question.js');
 const { ObjectId } = require('mongodb');
+const { OrderedMap } = require('immutable');
 
 module.exports = {
     getListQuestionsOfTopic: getListQuestionsOfTopic,
@@ -13,6 +14,18 @@ module.exports = {
     getResultExerciseOfTopic: getResultExerciseOfTopic
 };
 
+function insertUser(users, userId, topicId, object){
+    var mapTopicOfUser = users.getUser(userId);
+    if(mapTopicOfUser){
+        mapTopicOfUser = mapTopicOfUser.set(topicId.toString(), object);
+        users.insertUser(userId, mapTopicOfUser);
+    }else{
+        var mapTopic = new OrderedMap();
+        mapTopic = mapTopic.set(topicId.toString(), object);
+        users.insertUser(userId, mapTopic);
+    }
+}
+
 function getListQuestionsOfTopic(req, res){
     const topicId = ObjectId(req.swagger.params.topicId.value);
     var numberQuestion = req.swagger.params.numberQuestion.value;
@@ -20,9 +33,9 @@ function getListQuestionsOfTopic(req, res){
     const userId = req.userId;
     //get list choice question in db
 
-    if(numberQuestion < 10){
-        numberQuestion = 10;
-    }
+    // if(numberQuestion < 10){
+    //     numberQuestion = 10;
+    // }
 
     var rand = Math.floor(Math.random() * (numberQuestion - 1)) + 1;
     var listChoiceQuestions = [];
@@ -30,7 +43,6 @@ function getListQuestionsOfTopic(req, res){
     
     //add user vao listUser.
     const object = {
-        topicId: topicId,
         numberQuestion: numberQuestion,
         questionId: 0,
         numberAnswer: 0,
@@ -38,7 +50,7 @@ function getListQuestionsOfTopic(req, res){
         timeAnswer: 0
     }
 
-    req.app.users.insertUser(userId, object);
+    insertUser(req.app.users, userId, topicId, object);
 
     const queryChoiceQuesion = [
         {
@@ -295,12 +307,16 @@ function updateFillQuestionOfTopic(req, res){
 
 function verifyAnswer(req, res){
     const questionId = req.swagger.params.questionId.value;
+    const topicId = req.swagger.params.topicId.value;
     const bodyTmp = req.swagger.params.body.value;
     const db = req.app.db;
     const body = handleDataAnswer(bodyTmp);
     const userId = req.userId;
 
-    var user = req.app.users.getUser(userId);
+    var mapTopic = req.app.users.getUser(userId);
+    var topic =  mapTopic.get(topicId);
+    console.log("topic: " + topic);
+    console.log("mapTopic: " + mapTopic);
 
     if((body.typeQuestion !== 'choice' && body.typeQuestion !== 'fill') || body.answer.length === 0){
         res.status(400);
@@ -309,23 +325,26 @@ function verifyAnswer(req, res){
         })
         return;
     }
-
-    handleAnswerChoiceQuestion(res, db, user, body, questionId);
-    handleAnswerFillQuestion(res, db, user, body, questionId);
+    
+    handleAnswerChoiceQuestion(res, db, topic, body, questionId);
+    handleAnswerFillQuestion(res, db, topic, body, questionId);
+    console.log(mapTopic.get(topicId))
 }
 
 function getResultExerciseOfTopic(req, res){
     const topicId = req.swagger.params.topicId.value;
     const userId = req.userId;
     const db = req.app.db;
-    const user = req.app.users.getUser(userId);
+    const mapTopic = req.app.users.getUser(userId);
+    const topic = mapTopic.get(topicId);
+
     const option = {
         fields: {
             pointReward: 1
         }
     }
     questionFunction.findOneDB(db, "Users", {_id: ObjectId(userId)}, option).then((result) => {
-        const point = result.pointReward + user.numberAnswerRight;
+        const point = result.pointReward + topic.numberAnswerRight;
         var update = {
             $set:{
                 pointReward: point
@@ -333,12 +352,12 @@ function getResultExerciseOfTopic(req, res){
         }
 
         questionFunction.findOneAndUpdateDB(db, "Users", {_id: ObjectId(userId)}, update).then((result) => {
-            if((topicId === user.topicId.toString()) && (user.numberQuestion === user.numberAnswer)){
+            if(topic.numberQuestion === topic.numberAnswer){
                 res.status(200);
                 res.json({
-                    numberQuestion: user.numberQuestion,
-                    numberAnswerRight: user.numberAnswerRight,
-                    point: user.numberAnswerRight
+                    numberQuestion: topic.numberQuestion,
+                    numberAnswerRight: topic.numberAnswerRight,
+                    point: topic.numberAnswerRight
                 })
             }else{
                 res.status(400);
@@ -402,7 +421,7 @@ function handleDataAnswer(data){
     return body;
 }
 
-function handleAnswerChoiceQuestion(res, db, user, body, questionId){
+function handleAnswerChoiceQuestion(res, db, topic, body, questionId){
     var option = {
         fields: {
             answerRight: 1,
@@ -412,20 +431,23 @@ function handleAnswerChoiceQuestion(res, db, user, body, questionId){
     }
 
     if(body.typeQuestion === 'choice'){
+        console.log("choice question");
+        console.log(topic);
+
         questionFunction.findOneDB(db, 'ChoiceQuestionExercise', {_id: ObjectId(questionId)}, option).then((result) => {
             if(result.answerRight === body.answer){
-                if(user.questionId !== questionId && (user.numberAnswer < user.numberQuestion)){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.numberAnswerRight = user.numberAnswerRight + 1;
-                    user.timeAnswer = 2;
+                if(topic.questionId !== questionId && (topic.numberAnswer < topic.numberQuestion)){
+                    topic.questionId = questionId;
+                    topic.numberAnswer = topic.numberAnswer + 1;
+                    topic.numberAnswerRight = topic.numberAnswerRight + 1;
+                    topic.timeAnswer = 2;
                     res.status(200);
                     res.json({
                         result: true,
                         record: result.explainRight
                     })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
+                }else if(topic.timeAnswer < 2){
+                    topic.timeAnswer = topic.timeAnswer + 1;
                     res.status(200);
                     res.json({
                         result: true,
@@ -438,17 +460,17 @@ function handleAnswerChoiceQuestion(res, db, user, body, questionId){
                     })
                 }
             }else{
-                if(user.questionId !== questionId){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.timeAnswer = 1;
+                if(topic.questionId !== questionId){
+                    topic.questionId = questionId;
+                    topic.numberAnswer = topic.numberAnswer + 1;
+                    topic.timeAnswer = 1;
                     res.status(200);
                     res.json({
                         result: false,
                         record: result.suggest
                     })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
+                }else if(topic.timeAnswer < 2){
+                    topic.timeAnswer = topic.timeAnswer + 1;
                     res.status(200);
                     res.json({
                         result: false,
@@ -470,7 +492,7 @@ function handleAnswerChoiceQuestion(res, db, user, body, questionId){
     }
 }
 
-function handleAnswerFillQuestion(res, db, user, body, questionId){
+function handleAnswerFillQuestion(res, db, topic, body, questionId){
     var option = {
         fields: {
             answerRight: 1,
@@ -482,18 +504,18 @@ function handleAnswerFillQuestion(res, db, user, body, questionId){
     if(body.typeQuestion === 'fill'){
         questionFunction.findOneDB(db, 'FillQuestionExercise', {_id: ObjectId(questionId)}, option).then((result) => {
             if(result.answerRight === body.answer){
-                if(user.questionId !== questionId && (user.numberAnswer < user.numberQuestion)){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.numberAnswerRight = user.numberAnswerRight + 1;
-                    user.timeAnswer = 2;
+                if(topic.questionId !== questionId && (topic.numberAnswer < topic.numberQuestion)){
+                    topic.questionId = questionId;
+                    topic.numberAnswer = topic.numberAnswer + 1;
+                    topic.numberAnswerRight = topic.numberAnswerRight + 1;
+                    topic.timeAnswer = 2;
                     res.status(200);
                     res.json({
                         result: true,
                         record: result.explainRight
                     })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
+                }else if(topic.timeAnswer < 2){
+                    topic.timeAnswer = topic.timeAnswer + 1;
                     res.status(200);
                     res.json({
                         result: true,
@@ -506,17 +528,17 @@ function handleAnswerFillQuestion(res, db, user, body, questionId){
                     })
                 }
             }else{
-                if(user.questionId !== questionId){
-                    user.questionId = questionId;
-                    user.numberAnswer = user.numberAnswer + 1;
-                    user.timeAnswer = 1;
+                if(topic.questionId !== questionId){
+                    topic.questionId = questionId;
+                    topic.numberAnswer = topic.numberAnswer + 1;
+                    topic.timeAnswer = 1;
                     res.status(200);
                     res.json({
                         result: false,
                         record: result.suggest
                     })
-                }else if(user.timeAnswer < 2){
-                    user.timeAnswer = user.timeAnswer + 1;
+                }else if(topic.timeAnswer < 2){
+                    topic.timeAnswer = topic.timeAnswer + 1;
                     res.status(200);
                     res.json({
                         result: false,
