@@ -98,12 +98,18 @@ function getListQuestionsOfTopic(req, res){
             questionFunction.aggregateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, queryChoiceQuesion).then((result) => {
                 listChoiceQuestions = result;
             }).catch((err) => {
-                console.log(err);
+                res.status(400);
+                res.json({
+                    message: err
+                })
             }),
             questionFunction.aggregateDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, queryFillQuesion).then((result) => {
                 listFillQuestions = result;;
             }).catch((err) => {
-                console.log(err);
+                res.status(400);
+                res.json({
+                    message: err
+                })
             })]
         ).then((result) => {
             res.status(200);
@@ -113,7 +119,6 @@ function getListQuestionsOfTopic(req, res){
             })
         })
     }).catch((err) => {
-        console.log(err);
         res.status(400);
         res.json({
             message: "The topic is not existed"
@@ -146,7 +151,6 @@ function insertChoiceQuestionIntoTopic(req, res){
         }).catch((err) =>{
             //not exist
             questionFunction.insertOneDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, body).then((result) => {
-                console.log(result.ops);
                 res.status(200);
                 res.json({
                     message: "insert choice question into database successed"
@@ -238,7 +242,6 @@ function insertFillQuestionIntoTopic(req, res){
         }).catch((err) =>{
             //not exist
             questionFunction.insertOneDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, body).then((result) => {
-                console.log(result.ops);
                 res.status(200);
                 res.json({
                     message: "insert fill question into database successed"

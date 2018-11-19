@@ -227,7 +227,7 @@ definitions:
   ChoiceQuestionResponse:
     type: object
     properties:
-      id:
+      _id:
         type: string
       content:
         type: string
@@ -246,7 +246,7 @@ definitions:
   FillQuestionResponse:
     type: object
     properties:
-      id:
+      _id:
         type: string
       content:
         type: string

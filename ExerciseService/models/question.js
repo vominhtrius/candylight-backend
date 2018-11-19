@@ -24,7 +24,7 @@ const findOneAndUpdateDB = (db, collectionName, filter, update) => {
 }
 
 
-const aggregateDB = (db, collectionName, query, option={}, limit) => {
+const aggregateDB = (db, collectionName, query, option={}) => {
     return new Promise((resolve, reject) => {
         db.collection(collectionName).aggregate(query).toArray((err, result) => {
             return err || !result || result.length === 0 ? reject(err) : resolve(result);

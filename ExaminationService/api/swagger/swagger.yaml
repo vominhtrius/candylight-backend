@@ -48,22 +48,384 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /exam/{type}/{time}/title:
+    x-swagger-router-controller: exam
+    get:
+      description: get list question exam of month
+      operationId: getListQuestionExamInMonth
+      parameters:
+        - name: type
+          in: path
+          description: math or vietnamese
+          required: true
+          type: string
+        - name: time
+          in: path
+          description: time month have format MM_YYYY. such as 08_2018
+          required: true
+          type: string
+        - name: title
+          in: query
+          description: title Exam0, Exam1, Exam2
+          required: true
+          type: string
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/QuestionExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /listexam/{type}/time:
+    x-swagger-router-controller: exam
+    get:
+      description: get list exam of month
+      operationId: getListExamInMonth
+      parameters:
+        - name: type
+          in: path
+          description: math or vietnamese
+          required: true
+          type: string
+        - name: time
+          in: query
+          description: time month have format MM_YYYY. such as 08_2018
+          required: true
+          type: string
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /exam/{examId}:
+    x-swagger-router-controller: exam
+    put:
+      description: update exam in db
+      operationId: updateExam
+      parameters:
+        - name: examId
+          in: path
+          description: id of exam
+          type: string
+          required: true
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/Exam"
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /choicequestion:
+    x-swagger-router-controller: exam
+    post:
+      description: insert choice question in db
+      operationId: insertChoiceQuestionIntoExam
+      parameters:
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/ChoiceQuestionRequest"
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      description: update choice question in db
+      operationId: updateChoiceQuestionIntoExam
+      parameters:
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/ChoiceQuestionUpdateRequest"
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /fillquestion:
+    x-swagger-router-controller: exam
+    post:
+      description: insert fill question in db
+      operationId: insertFillQuestionIntoExam
+      parameters:
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/FillQuestionRequest"
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      description: update fill question in db
+      operationId: updateFillQuestionIntoExam
+      parameters:
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/FillQuestionUpdateRequest"
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    
 # complex objects have schema definitions
 definitions:
   Exam:
+    type: object
     properties:
-      title:
-        description: title of exam. Such as De01, De02, De03
+      type:
+        description: type math or vietnamese
         type: string
       time:
-        description: time of exam
+        description: time of exam. format MM_YYYY. Such as 08_2018
         type: string
       timeDo:
-        description: time do exam. Such as 18000s
+        description: time do exam. Such as 1800
         type: integer
       numberQuestion:
         description: number question of exam
         type: integer
+  QuestionExamResponse:
+    type: object
+    properties:
+      _id:
+        description: id of exam
+        type: string
+      title:
+        description: type math or vietnamese
+      time:
+        description: time of exam, format is MM_YYYY
+        type: string
+      timeDo:
+        description: time do exam
+        type: integer
+      numberQuestion:
+        description: number question of exam
+      listChoiceQuestion:
+        description: list choice question in exam
+        type: array
+        items:
+          $ref: "#/definitions/ChoiceQuestionResponse"
+      listFillQuestion:
+        description: list fill question in exam
+        type: array
+        items:
+          $ref: "#/definitions/FillQuestionResponse"
+  ChoiceQuestionResponse:
+    type: object
+    properties:
+      _id:
+        description: id of question
+        type: string
+      content:
+        description: content of question
+        type: string
+      answers:
+        description: there are four answer
+        type: object
+        properties:
+          ansA:
+            type: string
+          ansB:
+            type: string
+          ansC:
+            type: string
+          ansD:
+            type: string
+  ListExamResponse:
+    type: object
+    properties:
+      listExam:
+        description: list exam
+        type: array
+        items: 
+          $ref: "#/definitions/ItemExam"
+  ItemExam:
+    type: object
+    properties:
+      _id:
+        description: id exam
+        type: string
+      type:
+        description: type math or vietnamese
+        type: string
+      title:
+        description: title exam. format Exam0, Exam1,..
+        type: string
+      time:
+        description: time of exam. format MM_YYYY. Such as 08_2018
+        type: string
+      timeDo:
+        description: time do exam. Such as 1800
+        type: integer
+      numberQuestion:
+        description: number question of exam
+        type: integer
+      
+    
+  FillQuestionResponse:
+    type: object
+    properties:
+      _id:
+        description: id of question
+        type: string
+      content:
+        description: content of question
+        type: string    
+        
+  ChoiceQuestionRequest:
+    type: object
+    required:
+      - examId
+    properties:
+      examId:
+        description: id of exam
+        type: string
+      content:
+        description: content question
+        type: string
+      answers:
+        description: answer hava four choice ansA, ansB, ansC, ansD
+        type: object
+        properties:
+          ansA:
+            type: string
+          ansB:
+            type: string
+          ansC:
+            type: string
+          ansD:
+            type: string
+      answerRight:
+        description: answer right of question
+        type: string
+  ChoiceQuestionUpdateRequest:
+    type: object
+    required:
+      - examId
+      - id
+    properties:
+      examId:
+        description: id of exam
+        type: string
+      id:
+        description: id of question
+        type: string
+      content:
+        description: content question
+        type: string
+      answers:
+        description: answer hava four choice ansA, ansB, ansC, ansD
+        type: object
+        properties:
+          ansA:
+            type: string
+          ansB:
+            type: string
+          ansC:
+            type: string
+          ansD:
+            type: string
+      answerRight:
+        description: answer right of question
+        type: string
+  FillQuestionRequest:
+    type: object
+    required:
+      - examId
+    properties:
+      examId:
+        description: id of exam
+        type: string
+      content:
+        description: content question
+        type: string
+      answerRight:
+        description: answer right of question
+        type: string
+  FillQuestionUpdateRequest:
+    type: object
+    required:
+      - examId
+      - id
+    properties:
+      examId:
+        description: id of exam
+        type: string
+      id:
+        description: id of question
+        type: string
+      content:
+        description: content question
+        type: string
+      answerRight:
+        description: answer right of question
+        type: string
   ExamResponse:
     required:
       - message
