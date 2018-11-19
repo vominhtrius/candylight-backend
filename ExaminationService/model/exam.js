@@ -47,6 +47,7 @@ const findMany = (db, collectionName, query, option ={}) => {
         })
     })
 }
+
 module.exports = {
     insertOneDB,
     findOneDB,

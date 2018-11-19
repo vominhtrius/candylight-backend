@@ -4,24 +4,24 @@ const examFunction = require('../../model/exam.js');
 const { ObjectId } = require('mongodb');
 const moment = require('moment');
 const helpers = require('../../helpers/helpers.js');
+const lodash = require('lodash');
 
 module.exports = {
     insertExam: insertExam,
     getListQuestionExamInMonth: getListQuestionExamInMonth,
     getListExamInMonth: getListExamInMonth,
+    getInfoUserExam: getInfoUserExam,
     updateExam: updateExam,
     insertChoiceQuestionIntoExam:insertChoiceQuestionIntoExam,
     updateChoiceQuestionIntoExam: updateChoiceQuestionIntoExam,
     insertFillQuestionIntoExam: insertFillQuestionIntoExam,
-    updateFillQuestionIntoExam: updateFillQuestionIntoExam
+    updateFillQuestionIntoExam: updateFillQuestionIntoExam,
+    verifyAnwser: verifyAnwser
 };
 
 function insertExam(req, res) {
     const body = req.swagger.params.body.value;
     const db = req.app.db;
-    // const day = moment();
-    // const daytFormat = moment(day).format('MM/YYYY');
-
     body.type = body.type.trim();
 
     if(body.type !== helpers.NAME_MATH_EXAM && body.type !== helpers.NAME_VN_EXAM){
@@ -58,8 +58,8 @@ function insertExam(req, res) {
 
     // dem so exam hien co trong db cua time 
     examFunction.countDocument(db, helpers.NAME_DB_EXAM, {time: body.time, type: body.type}).then((result) => {
-        console.log(result);
         body.title = 'Exam' + result.toString();
+        body.listAnswerRight = [];
         if(result < helpers.NUMBER_EXAM){
             examFunction.insertOneDB(db, helpers.NAME_DB_EXAM, body).then((result) => {
                 res.status(200);
@@ -88,29 +88,12 @@ function insertExam(req, res) {
 }
 
 function getListQuestionExamInMonth(req, res){
-    const typeExam = req.swagger.params.type.value.trim();
-    const time = req.swagger.params.time.value.trim();
-    const title = req.swagger.params.title.value.trim();
+    const examId = ObjectId(req.swagger.params.examId.value);
     const db = req.app.db;
+    const userId = ObjectId(req.userId);
+
     var numberQuestionTmp = 0;
-
-    if(typeExam !== helpers.NAME_MATH_EXAM && typeExam !== helpers.NAME_VN_EXAM){
-        res.status(400);
-        res.json({
-            message: "Invalid the title"
-        })
-        return;
-    }   
-
-    if(!moment(time.trim(), "MM_YYYY", true).isValid()){
-        res.status(400);
-        res.json({
-            message: "Invalid the format time"
-        })
-        return;
-    }
-
-    examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {type: typeExam, time: time, title: title}).then((resultExam) => {
+    examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id: examId}).then((resultExam) => {
         const query = [
             {
                 $match:{
@@ -139,6 +122,9 @@ function getListQuestionExamInMonth(req, res){
                 }else{                
                     Promise.all([
                         examFunction.aggregateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXAM, query).then((result) => {
+                            for(var i = 0; i < result.length; i++){
+                                result[i].type = 'choice';
+                            }
                             resultExam.listChoiceQuestion = result;
                         }).catch((err) =>{
                             res.status(400);
@@ -147,7 +133,10 @@ function getListQuestionExamInMonth(req, res){
                             })
                         }),
                         examFunction.aggregateDB(db, helpers.NAME_DB_FILLQUESTION_EXAM, query).then((result) => {
-                            resultExam.listFillQuestion = result;                
+                            for(var i = 0; i < result.length; i++){
+                                result[i].type = 'fill'
+                            }
+                            resultExam.listFillQuestion = result;
                         }).catch((err) => {
                             res.status(400);
                             res.json({
@@ -155,15 +144,11 @@ function getListQuestionExamInMonth(req, res){
                             })
                         })
                     ]).then((result) => {
+                        resultExam.listQuestion = resultExam.listChoiceQuestion.concat(resultExam.listFillQuestion);
+                        resultExam.listQuestion = lodash.sortBy(resultExam.listQuestion, (item) => item._id);
                         res.status(200);
                         res.json({
-                            _id: resultExam._id,
-                            title: resultExam.title,
-                            time: resultExam.time,
-                            timeDo: resultExam.timeDo,
-                            numberQuestion: resultExam.numberQuestion,
-                            listChoiceQuestion: resultExam.listChoiceQuestion,
-                            listFillQuestion: resultExam.listFillQuestion
+                            listQuestion: resultExam.listQuestion
                         })
                     })
                 }
@@ -185,6 +170,59 @@ function getListQuestionExamInMonth(req, res){
             message: "Not found Exam"
         })
     })
+}
+
+function getInfoUserExam(req, res){
+    const time = req.swagger.params.time.value.trim();
+    const db = req.app.db;
+    const userId = ObjectId(req.userId);
+    if(!moment(time.trim(), "MM_YYYY", true).isValid()){
+        res.status(400);
+        res.json({
+            message: "Invalid the format time"
+        })
+        return;
+    }
+    var option = {
+        fields: {
+            numberMathExam: 1,
+            numberVietnameseExam: 1,
+            listDidMathExam: 1,
+            listDidVietnameseExam: 1
+        }
+    }
+    examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {time: time, userId: userId}, option).then((result) => {
+        res.status(200);
+        res.json({
+            numberMathExam: result.numberMathExam,
+            numberVietnameseExam: result.numberVietnameseExam,
+            listDidMathExam: result.listDidMathExam,
+            listDidVietnameseExam: result.listDidVietnameseExam
+        })
+    }).catch((err) => {
+        insertNewInfoExamUser(db, userId, time);
+        res.status(200);
+        res.json({
+            numberMathExam: 0, 
+            numberVietnameseExam: 0,
+            listDidMathExam: [],
+            listDidVietnameseExam: []
+        })
+    })
+}
+
+function insertNewInfoExamUser(db, userId, time){
+    var object = {
+        userId: ObjectId(userId),
+        time: time,
+        numberMathExam: 0,
+        numberVietnameseExam: 0,
+        listMathPointExam: [],
+        listVietnamesePointExam: [],
+        listDidMathExam: [],
+        listDidVietnameseExam: []
+    }
+    examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
 }
 
 function updateExam(req, res){
@@ -248,11 +286,15 @@ function updateExam(req, res){
 }
 
 function getListExamInMonth(req, res){
-    const type = req.swagger.params.type.value;
-    const time = req.swagger.params.time.value;
+    const type = req.swagger.params.type.value.trim();
+    const time = req.swagger.params.time.value.trim();
     const db = req.app.db;
-
-    examFunction.findMany(db, helpers.NAME_DB_EXAM, {type: type, time: time}).then((result) => {
+    const option = {
+        fields:{
+            listAnswerRight: 0
+        }
+    }
+    examFunction.findMany(db, helpers.NAME_DB_EXAM, {type: type, time: time}, option).then((result) => {
         res.status(200);
         res.json({
             listExam: result
@@ -282,6 +324,7 @@ function insertChoiceQuestionIntoExam(req, res){
 
     examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id: body.examId}).then((result) => {
         const numberQuestion = result.numberQuestion;
+        var listAnswerRightTmp = result.listAnswerRight;
         //check content question existed in db
         examFunction.findOneDB(db, helpers.NAME_DB_CHOICEQUESTION_EXAM, {content: body.content}).then((result) => {
             res.status(400);
@@ -297,6 +340,18 @@ function insertChoiceQuestionIntoExam(req, res){
                     if(numberQuestionTmp < numberQuestion){
                         //not exist
                         examFunction.insertOneDB(db, helpers.NAME_DB_CHOICEQUESTION_EXAM, body).then((result) => {
+                            //them dap an vao exam
+                            listAnswerRightTmp.push(result.ops[0].answerRight);
+                            const update = {
+                                $set:{
+                                    listAnswerRight : listAnswerRightTmp
+                                }
+                            }
+                            examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_EXAM, {_id : body.examId}, update).then((result)=>{
+                                console.log(result)
+                            }).catch((err) => { 
+                                console.log(err);   
+                            })
                             res.status(200);
                             res.json({
                                 message: "insert choice question into database successed"
@@ -327,7 +382,6 @@ function insertChoiceQuestionIntoExam(req, res){
             })
         }) 
     }).catch((err) => {
-        console.log(err);
         res.status(400);
         res.json({
             message: "The exam is not existed"
@@ -397,6 +451,7 @@ function insertFillQuestionIntoExam(req, res){
 
     examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id: body.examId}).then((result) => {
         const numberQuestion = result.numberQuestion;
+        var listAnswerRightTmp = result.listAnswerRight;
         //check content question existed in db
         examFunction.findOneDB(db, helpers.NAME_DB_FILLQUESTION_EXAM, {content: body.content}).then((result) => {
             res.status(400);
@@ -412,6 +467,16 @@ function insertFillQuestionIntoExam(req, res){
                     if(numberQuestionTmp < numberQuestion){
                         //not exist
                         examFunction.insertOneDB(db, helpers.NAME_DB_FILLQUESTION_EXAM, body).then((result) => {
+                            listAnswerRightTmp.push(result.ops[0].answerRight);
+                            const update = {
+                                $set:{
+                                    listAnswerRight : listAnswerRightTmp
+                                }
+                            }
+                            examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_EXAM, {_id : body.examId}, update).then((result)=>{
+                            }).catch((err) => { 
+                                console.log(err);   
+                            })
                             res.status(200);
                             res.json({
                                 message: "insert choice question into database successed"
@@ -495,6 +560,118 @@ function updateFillQuestionIntoExam(req, res){
     })
 }
 
+function verifyAnwser(req, res){
+    const examId = ObjectId(req.swagger.params.examId.value);
+    const listAnswer = req.swagger.params.body.value.listAnswer;
+    const userId = ObjectId(req.userId) ;
+    const type = req.swagger.params.type.value.trim();
+    const db = req.app.db;
+    var numberQuestion = 0;
+    var numberAnswerRight = 0;
+    var numberExam = 0;
+    var listDidExam = [];
+    var listPointExam = [];
+
+    const option = {
+        fields:{
+            numberQuestion: 1,
+            listAnswerRight: 1,
+            time: 1
+        }
+    }
+
+    examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id : examId}, option).then((result) => {
+        numberQuestion = result.numberQuestion;
+        result.listAnswerRight.forEach((element, index) => {
+            if(listAnswer[index] === element){
+                numberAnswerRight++;
+            }
+        })
+
+        examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: result.time}).then((result) => {
+            if(type === 'math'){
+                numberExam = result.numberMathExam;
+                listDidExam = result.listDidMathExam;
+                listPointExam = result.listMathPointExam;
+            }else {
+                numberExam = result.numberVietnameseExam;
+                listDidExam = result.listDidVietnameseExam;
+                listPointExam = result.listVietnamesePointExam;
+            }
+            listDidExam.push(examId);
+            listPointExam.push(numberAnswerRight * helpers.POINT_BASE);
+
+            updateInfoExamUser(db, result._id, type, numberExam + 1, listDidExam, listPointExam);
+
+            res.status(200);
+            res.json({
+                numberAnswerRight: numberAnswerRight,
+                numberQuestion: numberQuestion,
+                point: numberAnswerRight * helpers.POINT_BASE
+            })
+        }).catch((err) => {
+            console.log(err);
+            res.status(400);
+            res.json({
+                message: err
+            })
+        })
+    }).catch((err) => {
+        console.log(err);
+        res.status(400);
+        res.json({
+            message: "Not found exam"
+        })
+    })
+
+}
+
+function checkInfoExamUserInMonth(db, userId, time, type){
+    examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: time}).then((result) => {
+        if(infoExamUser){
+            if(type === 'math'){
+                if(infoExamUser.numberMathExam >= helpers.NUMBER_EXAM){
+                    console.log("number math exam big");
+                    return false;
+                }
+            }else if(type === 'vietnamese'){
+                if(infoExamUser.numberVietnameseExam >= helpers.NUMBER_EXAM){
+                    return false;
+                }
+            }
+        }else{
+            insertNewInfoExamUser(db, userId, time);
+        }
+        return true;
+    })
+}
+
+function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listPointExam){
+    var update = {};
+
+    if(type === 'math') {
+        update = {
+            $set:{
+                numberMathExam: numberExam,
+                listDidMathExam: listDidExam,
+                listMathPointExam: listPointExam,
+            }
+        }
+    }else {
+        update = {
+            $set:{
+                numberVietnameseExam: numberExam,
+                listDidVietnameseExam: listDidExam,
+                listVietnamesePointExam: listPointExam,
+            }
+        }
+    }
+    examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_INFOEXAMUSER, {_id: examUserId}, update).then((result) => {
+        console.log("update info exam user success")
+    }).catch((err) => {
+        console.log(err);
+    })
+}
 
 function handlerDataChoiceQuestion(data){
     var body = {};
