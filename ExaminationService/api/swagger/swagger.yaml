@@ -35,48 +35,14 @@ paths:
           description: field of exam
           schema:
               $ref: "#/definitions/Exam"
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
           schema:
             # a pointer to a definition
             $ref: "#/definitions/ExamResponse"
-        # responses may fall through to errors
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
-  /exam/{type}/{time}/title:
-    x-swagger-router-controller: exam
-    get:
-      description: get list question exam of month
-      operationId: getListQuestionExamInMonth
-      parameters:
-        - name: type
-          in: path
-          description: math or vietnamese
-          required: true
-          type: string
-        - name: time
-          in: path
-          description: time month have format MM_YYYY. such as 08_2018
-          required: true
-          type: string
-        - name: title
-          in: query
-          description: title Exam0, Exam1, Exam2
-          required: true
-          type: string
-      # security:
-      #   - auth0: []
-      responses:
-        "200":
-          description: Success
-          schema:
-            # a pointer to a definition
-            $ref: "#/definitions/QuestionExamResponse"
         # responses may fall through to errors
         default:
           description: Error
@@ -98,8 +64,8 @@ paths:
           description: time month have format MM_YYYY. such as 08_2018
           required: true
           type: string
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -135,6 +101,28 @@ paths:
           schema:
             # a pointer to a definition
             $ref: "#/definitions/ExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      description: get list question exam in month
+      operationId: getListQuestionExamInMonth
+      parameters:
+        - name: examId
+          in: path
+          description: id of exam
+          required: true
+          type: string
+      security:
+        - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/QuestionExamResponse"
         # responses may fall through to errors
         default:
           description: Error
@@ -232,7 +220,64 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-    
+  /infoexamuser/{time}:
+    x-swagger-router-controller: exam
+    get:
+      description: get info exam user in time
+      operationId: getInfoUserExam
+      parameters:
+        - name: time
+          in: path
+          description: have format MM_YYYY. Such as 08_2018
+          type: string
+          required: true
+      security:
+        - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/InfoExamResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /verifyanswer/{type}/{examId}:
+    x-swagger-router-controller: exam
+    post:
+      description: verify answer
+      operationId: verifyAnwser
+      parameters:
+        - name: examId
+          in: path
+          description: id of exam
+          required: true
+          type: string
+        - name: type
+          in: path
+          description: type math or vietnamese
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: field of exam
+          schema:
+              $ref: "#/definitions/ListAnswer"
+      security:
+        - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ResultResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 # complex objects have schema definitions
 definitions:
   Exam:
@@ -253,50 +298,12 @@ definitions:
   QuestionExamResponse:
     type: object
     properties:
-      _id:
-        description: id of exam
-        type: string
-      title:
-        description: type math or vietnamese
-      time:
-        description: time of exam, format is MM_YYYY
-        type: string
-      timeDo:
-        description: time do exam
-        type: integer
-      numberQuestion:
-        description: number question of exam
-      listChoiceQuestion:
+      listQuestion:
         description: list choice question in exam
         type: array
         items:
-          $ref: "#/definitions/ChoiceQuestionResponse"
-      listFillQuestion:
-        description: list fill question in exam
-        type: array
-        items:
-          $ref: "#/definitions/FillQuestionResponse"
-  ChoiceQuestionResponse:
-    type: object
-    properties:
-      _id:
-        description: id of question
-        type: string
-      content:
-        description: content of question
-        type: string
-      answers:
-        description: there are four answer
-        type: object
-        properties:
-          ansA:
-            type: string
-          ansB:
-            type: string
-          ansC:
-            type: string
-          ansD:
-            type: string
+          type: object
+          description: if choice question, object have properties (_id, content, answer (ansA, ansB, ansC, ansD), type = 'choice'). if fill question, object have properties (_id, content, type = 'fill')
   ListExamResponse:
     type: object
     properties:
@@ -326,18 +333,7 @@ definitions:
       numberQuestion:
         description: number question of exam
         type: integer
-      
     
-  FillQuestionResponse:
-    type: object
-    properties:
-      _id:
-        description: id of question
-        type: string
-      content:
-        description: content of question
-        type: string    
-        
   ChoiceQuestionRequest:
     type: object
     required:
@@ -426,6 +422,45 @@ definitions:
       answerRight:
         description: answer right of question
         type: string
+  InfoExamResponse:
+    type: object
+    properties:
+      numberMathExam:
+        description: number of exam Math in time
+        type: integer
+      numberVietnameseExam:
+        description: number of exam Vietnamese in time
+        type: integer
+      listDidMathExam:
+        description: list math exam did
+        type: array
+        items:
+          type: string
+      listDidVietnameseExam:
+        description: list vietnamese did
+        type: array
+        items:
+          type: string
+  ListAnswer:
+    type: object
+    properties:
+      listAnswer:
+        description: list answer of user
+        type: array
+        items:
+          type: string
+  ResultResponse:
+    type: object
+    properties:
+      numberAnswerRight:
+        description: number of answer right
+        type: integer
+      numberQuestion:
+        description: number of question
+        type: integer
+      point:
+        description: point added
+        type: number
   ExamResponse:
     required:
       - message
