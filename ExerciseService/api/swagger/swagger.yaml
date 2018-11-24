@@ -184,7 +184,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   
-  /resultexercise/{topicId}:
+  /result_exercise/{topicId}:
     x-swagger-router-controller: question
     get:
       description: Returns result exercise of topic
