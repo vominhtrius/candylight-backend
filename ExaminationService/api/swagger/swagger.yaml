@@ -282,7 +282,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /list_PointExam/time:
+  /list_pointExam/time:
     x-swagger-router-controller: exam
     get:
       description: get list pointexam of all users
@@ -293,8 +293,8 @@ paths:
           description: time
           required: true
           type: string
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -480,6 +480,11 @@ definitions:
   ResultResponse:
     type: object
     properties:
+      listCheckedAnswer:
+        description: list answer is checked
+        type: array
+        items: 
+          type: string
       numberAnswerRight:
         description: number of answer right
         type: integer

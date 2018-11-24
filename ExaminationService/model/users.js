@@ -21,8 +21,11 @@ class Users {
         const time = moment().format("MM_YYYY");
         var option ={
             fields:{
-                listMathPointExam:0,
-                listVietnamesePointExam: 0
+                userId: 1,
+                time: 1,
+                examDoingId: 1,
+                listDidMathExam: 1,
+                listDidVietnameseExam: 1
             }
         }
 
