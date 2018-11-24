@@ -48,7 +48,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /listexam/{type}/time:
+  /list_exam/{type}/time:
     x-swagger-router-controller: exam
     get:
       description: get list exam of month
@@ -93,8 +93,8 @@ paths:
           description: field of exam
           schema:
               $ref: "#/definitions/Exam"
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -128,7 +128,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /choicequestion:
+  /choice_question:
     x-swagger-router-controller: exam
     post:
       description: insert choice question in db
@@ -139,8 +139,8 @@ paths:
           description: field of exam
           schema:
               $ref: "#/definitions/ChoiceQuestionRequest"
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -161,8 +161,8 @@ paths:
           description: field of exam
           schema:
               $ref: "#/definitions/ChoiceQuestionUpdateRequest"
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -174,7 +174,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /fillquestion:
+  /fill_question:
     x-swagger-router-controller: exam
     post:
       description: insert fill question in db
@@ -185,8 +185,8 @@ paths:
           description: field of exam
           schema:
               $ref: "#/definitions/FillQuestionRequest"
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -207,8 +207,8 @@ paths:
           description: field of exam
           schema:
               $ref: "#/definitions/FillQuestionUpdateRequest"
-      # security:
-      #   - auth0: []
+      security:
+        - auth0: []
       responses:
         "200":
           description: Success
@@ -220,7 +220,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /infoexamuser/{time}:
+  /info_examuser/{time}:
     x-swagger-router-controller: exam
     get:
       description: get info exam user in time
@@ -244,7 +244,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /verifyanswer/{type}/{examId}:
+  /verify_answer/{type}/{title}/{examId}:
     x-swagger-router-controller: exam
     post:
       description: verify answer
@@ -260,6 +260,10 @@ paths:
           description: type math or vietnamese
           required: true
           type: string
+        - name: title
+          in: path
+          required: true
+          type: string
         - name: body
           in: body
           description: field of exam
@@ -273,6 +277,30 @@ paths:
           schema:
             # a pointer to a definition
             $ref: "#/definitions/ResultResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /list_PointExam/time:
+    x-swagger-router-controller: exam
+    get:
+      description: get list pointexam of all users
+      operationId: getListPointExam
+      parameters:
+        - name: time
+          in: query
+          description: time
+          required: true
+          type: string
+      # security:
+      #   - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListPointExamResponse"
         # responses may fall through to errors
         default:
           description: Error
@@ -460,6 +488,42 @@ definitions:
         type: integer
       point:
         description: point added
+        type: number
+  ListPointExamResponse:
+    type: object
+    properties:
+      listPointExam:
+        description: list point exam Math
+        type: array
+        items:
+          $ref: "#/definitions/ItemPointExam"
+  ItemPointExam:
+    type: object
+    properties:
+      userId:
+        description: id user 
+        type: string
+      time:
+        description: time
+        type: string
+      listMathPointExam:
+        description: list math point exam
+        type: array
+        items:
+           $ref: "#/definitions/ItemPoint"
+      listVietnamesePointExam:
+        description: list vietnamese point exam
+        type: array
+        items:
+           $ref: "#/definitions/ItemPoint"
+  ItemPoint:
+    type: object
+    properties:
+      title:
+        description: title exam
+        type: string
+      point:
+        description: point of exam
         type: number
   ExamResponse:
     required:
