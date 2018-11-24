@@ -38,12 +38,13 @@ var config = {
 database.connect().then((db)=>{
   console.log("connect database success");
   app.db = db;
+  app.users = new users(app);
+  app.users.getAllUsers(app.db);
 }).catch((err) => {
   console.log("connect database err: " + err);
   throw(err);
 })
 
-app.users = new users(app);
 
 ////////////////////////////////////////////////////////////////////
 

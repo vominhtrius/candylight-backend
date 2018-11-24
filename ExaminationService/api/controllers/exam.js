@@ -16,7 +16,8 @@ module.exports = {
     updateChoiceQuestionIntoExam: updateChoiceQuestionIntoExam,
     insertFillQuestionIntoExam: insertFillQuestionIntoExam,
     updateFillQuestionIntoExam: updateFillQuestionIntoExam,
-    verifyAnwser: verifyAnwser
+    verifyAnwser: verifyAnwser,
+    getListPointExam: getListPointExam
 };
 
 function insertExam(req, res) {
@@ -88,11 +89,64 @@ function insertExam(req, res) {
 }
 
 function getListQuestionExamInMonth(req, res){
+    //chua lam tinh gio, va xu li user k thi
     const examId = ObjectId(req.swagger.params.examId.value);
     const db = req.app.db;
     const userId = ObjectId(req.userId);
-
+    const time = moment().format("MM_YYYY"); 
     var numberQuestionTmp = 0;
+    const users = req.app.users;
+    var infoExamUser = users.getUser(userId.toString());
+
+    if(!moment(time.trim(), "MM_YYYY", true).isValid()){
+        res.status(400);
+        res.json({
+            message: "Invalid the format time"
+        })
+        return;
+    }
+    
+    if(infoExamUser.time === time){
+        if(infoExamUser.listDidMathExam.indexOf(examId.toString()) !== -1){
+            res.status(400);
+            res.json({
+                message: "Exam is did"
+            })
+            return;
+        }else if(infoExamUser.listDidVietnameseExam.indexOf(examId.toString()) !== -1){
+            res.status(400);
+            res.json({
+                message: "Exam is did"
+            }) 
+            return;
+        }else if(infoExamUser.examDoingId === examId.toString()){
+            res.status(400);
+            res.json({
+                message: "Exam is doing"
+            }) 
+            return;
+        }else if(infoExamUser.examDoingId.length !== 0){
+            res.status(400);
+            res.json({
+                message: "Invalid request"
+            }) 
+            return;
+        }
+    }
+
+    infoExamUser.examDoingId = examId.toString();
+    users.insertUser(userId, infoExamUser);
+    var update = {
+        $set:{
+            examDoingId: examId.toString(),
+        }
+    }
+
+    examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time :time}, update).then((result) => {
+    }).catch((err) => {
+        console.log(err);
+    })
+
     examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id: examId}).then((resultExam) => {
         const query = [
             {
@@ -176,6 +230,9 @@ function getInfoUserExam(req, res){
     const time = req.swagger.params.time.value.trim();
     const db = req.app.db;
     const userId = ObjectId(req.userId);
+    const users = req.app.users;
+    var infoExamUser = users.getUser(userId.toString());
+
     if(!moment(time.trim(), "MM_YYYY", true).isValid()){
         res.status(400);
         res.json({
@@ -183,15 +240,18 @@ function getInfoUserExam(req, res){
         })
         return;
     }
+
     var option = {
-        fields: {
-            numberMathExam: 1,
-            numberVietnameseExam: 1,
-            listDidMathExam: 1,
-            listDidVietnameseExam: 1
+        fields:{
+            listMathPointExam:0,
+            listVietnamesePointExam: 0
         }
     }
+
     examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {time: time, userId: userId}, option).then((result) => {
+        if(infoExamUser.time !== time){
+            users.insertUser(userId, result);
+        }
         res.status(200);
         res.json({
             numberMathExam: result.numberMathExam,
@@ -201,6 +261,15 @@ function getInfoUserExam(req, res){
         })
     }).catch((err) => {
         insertNewInfoExamUser(db, userId, time);
+        const object = {
+            userId: ObjectId(userId),
+            time: time,
+            examDoingId: '',
+            listDidMathExam: [],
+            listDidVietnameseExam: []
+        }
+        users.insertUser(userId, object);
+
         res.status(200);
         res.json({
             numberMathExam: 0, 
@@ -217,6 +286,7 @@ function insertNewInfoExamUser(db, userId, time){
         time: time,
         numberMathExam: 0,
         numberVietnameseExam: 0,
+        examDoingId: '',
         listMathPointExam: [],
         listVietnamesePointExam: [],
         listDidMathExam: [],
@@ -289,6 +359,7 @@ function getListExamInMonth(req, res){
     const type = req.swagger.params.type.value.trim();
     const time = req.swagger.params.time.value.trim();
     const db = req.app.db;
+
     const option = {
         fields:{
             listAnswerRight: 0
@@ -565,12 +636,16 @@ function verifyAnwser(req, res){
     const listAnswer = req.swagger.params.body.value.listAnswer;
     const userId = ObjectId(req.userId) ;
     const type = req.swagger.params.type.value.trim();
+    const title = req.swagger.params.title.value.trim();
     const db = req.app.db;
+    const users = req.app.users;
+
     var numberQuestion = 0;
     var numberAnswerRight = 0;
     var numberExam = 0;
     var listDidExam = [];
     var listPointExam = [];
+    var infoExamUser = users.getUser(userId.toString());
 
     const option = {
         fields:{
@@ -593,15 +668,24 @@ function verifyAnwser(req, res){
                 numberExam = result.numberMathExam;
                 listDidExam = result.listDidMathExam;
                 listPointExam = result.listMathPointExam;
+                infoExamUser.listDidMathExam = listDidExam;
             }else {
                 numberExam = result.numberVietnameseExam;
                 listDidExam = result.listDidVietnameseExam;
                 listPointExam = result.listVietnamesePointExam;
+                infoExamUser.listDidVietnameseExam = listDidExam;
             }
-            listDidExam.push(examId);
-            listPointExam.push(numberAnswerRight * helpers.POINT_BASE);
+
+            listDidExam.push(examId.toString());
+            var item = {
+                title: title,
+                point: numberAnswerRight * helpers.POINT_BASE
+            }
+
+            listPointExam.push(item);
 
             updateInfoExamUser(db, result._id, type, numberExam + 1, listDidExam, listPointExam);
+            infoExamUser.examDoingId = '';
 
             res.status(200);
             res.json({
@@ -626,23 +710,38 @@ function verifyAnwser(req, res){
 
 }
 
-function checkInfoExamUserInMonth(db, userId, time, type){
-    examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: time}).then((result) => {
-        if(infoExamUser){
-            if(type === 'math'){
-                if(infoExamUser.numberMathExam >= helpers.NUMBER_EXAM){
-                    console.log("number math exam big");
-                    return false;
-                }
-            }else if(type === 'vietnamese'){
-                if(infoExamUser.numberVietnameseExam >= helpers.NUMBER_EXAM){
-                    return false;
-                }
-            }
-        }else{
-            insertNewInfoExamUser(db, userId, time);
+function getListPointExam(req, res){
+    const time = req.swagger.params.time.value;
+    const db = req.app.db;
+    const userId = req.userId;
+
+    if(!moment(time.trim(), "MM_YYYY", true).isValid()){
+        res.status(400);
+        res.json({
+            message: "Invalid the format time"
+        })
+        return;
+    }
+    var option = {
+        fields: {
+            _id: 0,
+            userId: 1,
+            time: 1,
+            listMathPointExam: 1,
+            listVietnamesePointExam: 1,
         }
-        return true;
+    }
+
+    examFunction.findMany(db, helpers.NAME_DB_INFOEXAMUSER, {time: time}, option).then((result) => {
+        res.status(200);
+        res.json({
+            listPointExam: result   
+        })
+    }).catch((err) => {
+        res.status(400);
+        res.json({
+            message: "Do not get list point exam"
+        })
     })
 }
 
@@ -655,6 +754,7 @@ function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listP
                 numberMathExam: numberExam,
                 listDidMathExam: listDidExam,
                 listMathPointExam: listPointExam,
+                examDoingId: '',
             }
         }
     }else {
@@ -663,6 +763,7 @@ function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listP
                 numberVietnameseExam: numberExam,
                 listDidVietnameseExam: listDidExam,
                 listVietnamesePointExam: listPointExam,
+                examDoingId: '',
             }
         }
     }
