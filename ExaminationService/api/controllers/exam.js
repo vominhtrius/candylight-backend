@@ -105,7 +105,7 @@ function getListQuestionExamInMonth(req, res){
         })
         return;
     }
-    
+
     if(infoExamUser.time === time){
         if(infoExamUser.listDidMathExam.indexOf(examId.toString()) !== -1){
             res.status(400);
@@ -640,6 +640,7 @@ function verifyAnwser(req, res){
     const db = req.app.db;
     const users = req.app.users;
 
+    var listCheckedAnswer = [];
     var numberQuestion = 0;
     var numberAnswerRight = 0;
     var numberExam = 0;
@@ -660,6 +661,9 @@ function verifyAnwser(req, res){
         result.listAnswerRight.forEach((element, index) => {
             if(listAnswer[index] === element){
                 numberAnswerRight++;
+                listCheckedAnswer.push("true");
+            }else{
+                listCheckedAnswer.push("false");
             }
         })
 
@@ -689,6 +693,7 @@ function verifyAnwser(req, res){
 
             res.status(200);
             res.json({
+                listCheckedAnswer: listCheckedAnswer,
                 numberAnswerRight: numberAnswerRight,
                 numberQuestion: numberQuestion,
                 point: numberAnswerRight * helpers.POINT_BASE
