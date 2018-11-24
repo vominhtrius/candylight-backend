@@ -244,7 +244,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /verify_answer/{type}/{title}/{examId}:
+  /answer/{type}/{title}/{examId}:
     x-swagger-router-controller: exam
     post:
       description: verify answer
