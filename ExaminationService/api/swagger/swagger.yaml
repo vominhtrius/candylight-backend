@@ -220,7 +220,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /info_examuser/{time}:
+  /info_exam_user/{time}:
     x-swagger-router-controller: exam
     get:
       description: get info exam user in time
@@ -282,7 +282,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /list_pointExam/time:
+  /list_point_exam/time:
     x-swagger-router-controller: exam
     get:
       description: get list pointexam of all users
