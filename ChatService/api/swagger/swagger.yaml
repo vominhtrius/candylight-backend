@@ -18,7 +18,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /chat:
+  /hello:
     # binds a127 app logic to a route
     x-swagger-router-controller: hello_world
     get:
@@ -52,7 +52,7 @@ definitions:
     properties:
       message:
         type: string
-  ErrorResponse:``
+  ErrorResponse:
     required:
       - message
     properties:

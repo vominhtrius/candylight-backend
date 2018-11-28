@@ -320,9 +320,9 @@ function verifyAnswer(req, res){
     var mapTopic = req.app.users.getUser(userId);
     var topic =  mapTopic.get(topicId);
 
-    if(body.typeQuestion === 'choice' && body.answer.length !== 0){
+    if(body.typeQuestion === helpers.TYPE_QUESTION_CHOICE && body.answer.length !== 0){
         handleAnswerQuestion(res, db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, topic, questionId, body.answer);
-    }else if(body.typeQuestion === 'fill' && body.answer.length !== 0){
+    }else if(body.typeQuestion === helpers.TYPE_QUESTION_FILL && body.answer.length !== 0){
         handleAnswerQuestion(res, db, helpers.NAME_DB_FILLQUESTION_EXERCISE, topic, questionId, body.answer);
     }else{
         res.status(400);
