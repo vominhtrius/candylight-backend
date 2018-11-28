@@ -34,7 +34,7 @@ app.use(cors());
 
 accountServiceRoute(app, apiProxy);
 chatServiceRoute(app, apiProxy);
-learningServiceRoute(app, apiProxy);    
+learningServiceRoute(app, apiProxy);
 exerciseServiceRoute(app, apiProxy);
 examinationServiceRoute(app, apiProxy); 
 
@@ -43,7 +43,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
 ///////////////////////////////////////////
-app.server.listen(process.env.PORT || 8000, () => {
+app.server.listen(process.env.PORT || 8000, '103.114.107.16', () => {
     console.log(`App running on port: ${app.server.address().port}`);
     console.log(`App running on host: ${app.server.address().address}`);
 });
