@@ -11,7 +11,7 @@ const accountServiceRoute = require('./api/routes/account-service.js');
 const chatServiceRoute = require('./api/routes/chat-service.js');
 const learningServiceRoute = require('./api/routes/learning-service.js');
 const exerciseServiceRoute = require('./api/routes/exercise-service.js');
-
+const examinationServiceRoute = require('./api/routes/examination-service.js');
 
 ///////////////////////////////////////////
 var app = express();
@@ -36,14 +36,16 @@ accountServiceRoute(app, apiProxy);
 chatServiceRoute(app, apiProxy);
 learningServiceRoute(app, apiProxy);
 exerciseServiceRoute(app, apiProxy);
+examinationServiceRoute(app, apiProxy); 
 
 ///////////////////////////////////////
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
 ///////////////////////////////////////////
-app.server.listen(process.env.PORT || 8000, () => {
+app.server.listen(process.env.PORT || 8000, '103.114.107.16', () => {
     console.log(`App running on port: ${app.server.address().port}`);
+    console.log(`App running on port: ${app.server.address().host}`);
 });
 
 module.exports = app;
