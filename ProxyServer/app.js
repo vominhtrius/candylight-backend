@@ -45,7 +45,7 @@ app.use(bodyParser.urlencoded());
 ///////////////////////////////////////////
 app.server.listen(process.env.PORT || 8000, '103.114.107.16', () => {
     console.log(`App running on port: ${app.server.address().port}`);
-    console.log(`App running on port: ${app.server.address().address}`);
+    console.log(`App running on host: ${app.server.address().address}`);
 });
 
 module.exports = app;
