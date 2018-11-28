@@ -1,7 +1,7 @@
-hostAccountService = 'http://localhost:8001';
-hostChatService = 'http://localhost:8002';
-hostLearningService = 'http:/localhost:8003';
-hostExerciseService = 'http:/localhost:8004';
-
-const hostService = {hostAccountService, hostChatService, hostLearningService, hostExerciseService};
+hostAccountService = '103.114.107.16:8001';
+hostChatService = '103.114.107.16:8002';
+hostLearningService = '103.114.107.16:8003';
+hostExerciseService = '103.114.107.16:8004';
+hostExamination = '103.114.107.16:8005';
+const hostService = {hostAccountService, hostChatService, hostLearningService, hostExerciseService, hostExamination};
 module.exports = hostService;
