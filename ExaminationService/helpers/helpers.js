@@ -8,9 +8,12 @@ const NUMBER_EXAM = 3;
 const NAME_MATH_EXAM = 'math';
 const NAME_VN_EXAM = 'vietnamese';
 const POINT_BASE = 0.5;
-
-module.exports=
-{
+const TYPE_CHOICE_QUESTION = 'choice';
+const TYPE_FILL_QUESTION = 'fill';
+const CHECK_TRUE = 'true';
+const CHECK_FALSE = 'false';
+const FORMAT_DATE = 'MM_YYYY';
+module.exports= {
     TIMEDO,
     NUMBERQUESTION,
     NAME_DB_EXAM,
@@ -20,5 +23,10 @@ module.exports=
     NUMBER_EXAM,
     NAME_MATH_EXAM,
     NAME_VN_EXAM,
-    POINT_BASE
+    POINT_BASE,
+    TYPE_CHOICE_QUESTION,
+    TYPE_FILL_QUESTION,
+    CHECK_TRUE,
+    CHECK_FALSE,
+    FORMAT_DATE
 }

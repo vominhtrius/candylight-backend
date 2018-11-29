@@ -4,15 +4,15 @@ const NAME_DB_CHOICEQUESTION_EXERCISE = "ChoiceQuestionExercise";
 const NAME_DB_FILLQUESTION_EXERCISE = "FillQuestionExercise";
 const NAME_DB_TOPICS = "Topics";
 const NAME_DB_USERS = "Users";
-const TYPE_QUESTION_FILL = "fill";
-const TYPE_QUESTION_CHOICE = "choice";
-module.exports ={
+const TYPE_FILL_QUESTION = "fill";
+const TYPE_CHOICE_QUESTION = "choice";
+module.exports = {
     TIMEANSWER,
     NUMBERQUESTION_TOPIC,
     NAME_DB_CHOICEQUESTION_EXERCISE,
     NAME_DB_FILLQUESTION_EXERCISE,
     NAME_DB_TOPICS,
     NAME_DB_USERS,
-    TYPE_QUESTION_FILL,
-    TYPE_QUESTION_CHOICE
+    TYPE_FILL_QUESTION,
+    TYPE_CHOICE_QUESTION
 }
