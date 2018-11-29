@@ -282,12 +282,17 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /list_point_exam/time:
+  /list_point_exam/{numberTopStudent}/time:
     x-swagger-router-controller: exam
     get:
       description: get list pointexam of all users
       operationId: getListPointExam
       parameters:
+        - name: numberTopStudent
+          in: path
+          description: number top student
+          required: true
+          type: integer
         - name: time
           in: query
           description: time

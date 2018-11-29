@@ -34,7 +34,7 @@ class Users {
                 this.listUsers = this.listUsers.set(element.userId.toString(), element);
             });
         }).catch((err) => {
-            console.log(err);
+            console.log("message: " + err);
         })
     }
 }
