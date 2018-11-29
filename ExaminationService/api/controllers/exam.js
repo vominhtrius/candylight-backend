@@ -93,12 +93,12 @@ function getListQuestionExamInMonth(req, res){
     const examId = ObjectId(req.swagger.params.examId.value);
     const db = req.app.db;
     const userId = ObjectId(req.userId);
-    const time = moment().format("MM_YYYY"); 
+    const time = moment().format(helpers.FORMAT_DATE); 
     var numberQuestionTmp = 0;
     const users = req.app.users;
     var infoExamUser = users.getUser(userId.toString());
 
-    if(!moment(time.trim(), "MM_YYYY", true).isValid()){
+    if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
             message: "Invalid the format time"
@@ -177,7 +177,7 @@ function getListQuestionExamInMonth(req, res){
                     Promise.all([
                         examFunction.aggregateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXAM, query).then((result) => {
                             for(var i = 0; i < result.length; i++){
-                                result[i].type = 'choice';
+                                result[i].type = helpers.TYPE_CHOICE_QUESTION;
                             }
                             resultExam.listChoiceQuestion = result;
                         }).catch((err) =>{
@@ -188,7 +188,7 @@ function getListQuestionExamInMonth(req, res){
                         }),
                         examFunction.aggregateDB(db, helpers.NAME_DB_FILLQUESTION_EXAM, query).then((result) => {
                             for(var i = 0; i < result.length; i++){
-                                result[i].type = 'fill'
+                                result[i].type = helpers.TYPE_FILL_QUESTION;
                             }
                             resultExam.listFillQuestion = result;
                         }).catch((err) => {
@@ -233,7 +233,7 @@ function getInfoUserExam(req, res){
     const users = req.app.users;
     var infoExamUser = users.getUser(userId.toString());
 
-    if(!moment(time.trim(), "MM_YYYY", true).isValid()){
+    if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
             message: "Invalid the format time"
@@ -310,7 +310,7 @@ function updateExam(req, res){
         return;
     }   
 
-    if(!moment(body.time.trim(), "MM_YYYY", true).isValid()){
+    if(!moment(body.time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
             message: "Invalid the format time"
@@ -419,7 +419,6 @@ function insertChoiceQuestionIntoExam(req, res){
                                 }
                             }
                             examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_EXAM, {_id : body.examId}, update).then((result)=>{
-                                console.log(result)
                             }).catch((err) => { 
                                 console.log(err);   
                             })
@@ -661,14 +660,14 @@ function verifyAnwser(req, res){
         result.listAnswerRight.forEach((element, index) => {
             if(listAnswer[index] === element){
                 numberAnswerRight++;
-                listCheckedAnswer.push("true");
+                listCheckedAnswer.push(helpers.CHECK_TRUE);
             }else{
-                listCheckedAnswer.push("false");
+                listCheckedAnswer.push(helpers.CHECK_FALSE);
             }
         })
 
         examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: result.time}).then((result) => {
-            if(type === 'math'){
+            if(type === helpers.NAME_MATH_EXAM){
                 numberExam = result.numberMathExam;
                 listDidExam = result.listDidMathExam;
                 listPointExam = result.listMathPointExam;
@@ -720,7 +719,7 @@ function getListPointExam(req, res){
     const db = req.app.db;
     const userId = req.userId;
 
-    if(!moment(time.trim(), "MM_YYYY", true).isValid()){
+    if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
             message: "Invalid the format time"
@@ -753,7 +752,7 @@ function getListPointExam(req, res){
 function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listPointExam){
     var update = {};
 
-    if(type === 'math') {
+    if(type === helpers.NAME_MATH_EXAM) {
         update = {
             $set:{
                 numberMathExam: numberExam,

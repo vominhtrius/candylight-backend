@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Exercise Service
 # during dev, should point to your local machine
-host: 103.114.107.16:8004
+host: 127.0.0.1:8004
 # basePath prefixes all resource paths 
 basePath: /api/exercise
 # 
@@ -40,6 +40,7 @@ paths:
           description: number question wanted get
           required: true
           type: integer
+        
       security:
       - auth0: []
       responses:
@@ -149,7 +150,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
             
-  /answer/{topicId}/{questionId}:
+  /answer/{session}/{questionId}:
     x-swagger-router-controller: question
     post:
       description: verify answer
@@ -160,9 +161,9 @@ paths:
           description: id of question
           required: true
           type: string
-        - name: topicId
+        - name: session
           in: path
-          description: id of topic
+          description: session of do exercise
           required: true
           type: string
         - name: body
@@ -184,15 +185,15 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   
-  /result_exercise/{topicId}:
+  /result_exercise/{session}:
     x-swagger-router-controller: question
     get:
       description: Returns result exercise of topic
       operationId: getResultExerciseOfTopic
       parameters:
-        - name: topicId
+        - name: session
           in: path
-          description: id of topic
+          description: session of do exercise
           required: true
           type: string
       security:
@@ -208,48 +209,70 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /swagger:
-    x-swagger-pipe: swagger_raw
+  /remove_allsession:
+    x-swagger-router-controller: question
+    post:
+      description: remove all session
+      operationId: removeAllSession
+      parameters:
+        - name: body
+          in: body
+          description: list session
+          schema:
+            $ref: "#/definitions/ListSession"           
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 # complex objects have schema definitions
 definitions:
   ListQuestionOfTopic:
     type: object
     properties:
-      listChoiceQuestions:
+      session:
+        type: string
+        description: session of get list question 
+      listQuestions:
         type: array
         items:
-          $ref: "#/definitions/ChoiceQuestionResponse"
-      listFillQuestions:
-        type: array
-        items:
-          $ref: "#/definitions/FillQuestionResponse"
-          
-  ChoiceQuestionResponse:
-    type: object
-    properties:
-      _id:
-        type: string
-      content:
-        type: string
-      answers:
-        type: object
-        properties:
-          ansA:
-            type: string
-          ansB:
-            type: string
-          ansC:
-            type: string
-          ansD:
-            type: string
+          type: object
+          description: if choice question, object have properties (_id, content, answer (ansA, ansB, ansC, ansD), type = 'choice'). if fill question, object have properties (_id, content, type = 'fill')
+
+  # ChoiceQuestionResponse:
+  #   type: object
+  #   properties:
+  #     _id:
+  #       type: string
+  #     content:
+  #       type: string
+  #     answers:
+  #       type: object
+  #       properties:
+  #         ansA:
+  #           type: string
+  #         ansB:
+  #           type: string
+  #         ansC:
+  #           type: string
+  #         ansD:
+  #           type: string
             
-  FillQuestionResponse:
-    type: object
-    properties:
-      _id:
-        type: string
-      content:
-        type: string
+  # FillQuestionResponse:
+  #   type: object
+  #   properties:
+  #     _id:
+  #       type: string
+  #     content:
+  #       type: string
   
   ChoiceQuestionRequest:
     type: object
@@ -372,7 +395,14 @@ definitions:
         type: boolean
       record:
         type: string
-        
+  ListSession:
+    type: object
+    properties:
+      listSession:
+        description: list session
+        type: array
+        items:
+          type: string
   ErrorResponse:
     required:
       - message

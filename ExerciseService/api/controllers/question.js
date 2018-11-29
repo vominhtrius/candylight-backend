@@ -4,7 +4,7 @@ const questionFunction = require('../../models/question.js');
 const { ObjectId } = require('mongodb');
 const { OrderedMap } = require('immutable');
 const helpers = require('../../helpers/helpers.js');
-
+const  sha256 = require('js-sha256');
 module.exports = {
     getListQuestionsOfTopic: getListQuestionsOfTopic,
     insertChoiceQuestionIntoTopic: insertChoiceQuestionIntoTopic,
@@ -12,18 +12,19 @@ module.exports = {
     insertFillQuestionIntoTopic: insertFillQuestionIntoTopic,
     updateFillQuestionOfTopic: updateFillQuestionOfTopic,   
     verifyAnswer: verifyAnswer,
-    getResultExerciseOfTopic: getResultExerciseOfTopic
+    getResultExerciseOfTopic: getResultExerciseOfTopic,
+    removeAllSession: removeAllSession
 };
 
-function insertUser(users, userId, topicId, object){
-    var mapTopicOfUser = users.getUser(userId);
-    if(mapTopicOfUser){
-        mapTopicOfUser = mapTopicOfUser.set(topicId.toString(), object);
-        users.insertUser(userId, mapTopicOfUser);
+function insertUser(users, userId, session, object){
+    var mapSession = users.getUser(userId);
+    if(mapSession){
+        mapSession = mapSession.set(session, object);
+        users.insertUser(userId, mapSession);
     }else{
-        var mapTopic = new OrderedMap();
-        mapTopic = mapTopic.set(topicId.toString(), object);
-        users.insertUser(userId, mapTopic);
+        var mapSession = new OrderedMap();
+        mapSession = mapSession.set(session, object);
+        users.insertUser(userId, mapSession);
     }
 }
 
@@ -33,8 +34,7 @@ function getListQuestionsOfTopic(req, res){
     const db = req.app.db;
     const userId = req.userId;
     //get list choice question in db
-
-    if(numberQuestion < helpers.NUMBERQUESTION_TOPIC){
+    if(numberQuestion < helpers.NUMBERQUESTION_TOPIC || numberQuestion <= 1){
         numberQuestion = helpers.NUMBERQUESTION_TOPIC;
     }
 
@@ -45,13 +45,17 @@ function getListQuestionsOfTopic(req, res){
     //add user vao listUser.
     const object = {
         numberQuestion: numberQuestion,
-        questionId: 0,
+        questionId: '',
         numberAnswer: 0,
         numberAnswerRight: 0,
-        timeAnswer: 0
+        timeAnswer: 0,
+        listQuestionId: []
     }
+    const date = new Date();
+    const time = date.getTime();
+    const session = sha256(time.toString() + userId);
 
-    insertUser(req.app.users, userId, topicId, object);
+    insertUser(req.app.users, userId, session, object);
 
     const queryChoiceQuesion = [
         {
@@ -96,6 +100,9 @@ function getListQuestionsOfTopic(req, res){
     questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: topicId}).then((result) => {
         Promise.all([
             questionFunction.aggregateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, queryChoiceQuesion).then((result) => {
+                for(var i = 0; i < result.length; i++){
+                    result[i].type = helpers.TYPE_CHOICE_QUESTION;
+                }
                 listChoiceQuestions = result;
             }).catch((err) => {
                 res.status(400);
@@ -104,6 +111,9 @@ function getListQuestionsOfTopic(req, res){
                 })
             }),
             questionFunction.aggregateDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, queryFillQuesion).then((result) => {
+                for(var i = 0; i < result.length; i++){
+                    result[i].type = helpers.TYPE_FILL_QUESTION;
+                }
                 listFillQuestions = result;;
             }).catch((err) => {
                 res.status(400);
@@ -112,10 +122,14 @@ function getListQuestionsOfTopic(req, res){
                 })
             })]
         ).then((result) => {
+            var listQuestion = listChoiceQuestions.concat(listFillQuestions);
+            listQuestion = listQuestion.sort(()=>{
+                return Math.random() - 0.5;
+            })
             res.status(200);
             res.json({
-                listChoiceQuestions: listChoiceQuestions,
-                listFillQuestions: listFillQuestions
+                session: session,
+                listQuestion: listQuestion
             })
         })
     }).catch((err) => {
@@ -311,19 +325,43 @@ function updateFillQuestionOfTopic(req, res){
 
 function verifyAnswer(req, res){
     const questionId = req.swagger.params.questionId.value;
-    const topicId = req.swagger.params.topicId.value;
+    const session = req.swagger.params.session.value;
     const bodyTmp = req.swagger.params.body.value;
     const db = req.app.db;
     const body = handleDataAnswer(bodyTmp);
     const userId = req.userId;
 
-    var mapTopic = req.app.users.getUser(userId);
-    var topic =  mapTopic.get(topicId);
+    var mapSession = req.app.users.getUser(userId);
+    if(!mapSession){
+        res.status(400);
+        res.json({
+            message: "Invalid the answer"
+        })
+        return;
+    }
 
-    if(body.typeQuestion === helpers.TYPE_QUESTION_CHOICE && body.answer.length !== 0){
-        handleAnswerQuestion(res, db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, topic, questionId, body.answer);
-    }else if(body.typeQuestion === helpers.TYPE_QUESTION_FILL && body.answer.length !== 0){
-        handleAnswerQuestion(res, db, helpers.NAME_DB_FILLQUESTION_EXERCISE, topic, questionId, body.answer);
+    var sessionObject =  mapSession.get(session);
+
+    if(!sessionObject){
+        res.status(400);
+        res.json({
+            message: "Invalid the answer"
+        })
+        return; 
+    }
+    const index = sessionObject.listQuestionId.indexOf(questionId);
+    if(index >= 0 && index < sessionObject.listQuestionId.length - 1){
+        res.status(400);
+        res.json({
+            message: "Invalid the answer"
+        })
+        return; 
+    }
+
+    if(body.typeQuestion === helpers.TYPE_CHOICE_QUESTION && body.answer.length !== 0){
+        handleAnswerQuestion(res, db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, sessionObject, questionId, body.answer);
+    }else if(body.typeQuestion === helpers.TYPE_FILL_QUESTION && body.answer.length !== 0){
+        handleAnswerQuestion(res, db, helpers.NAME_DB_FILLQUESTION_EXERCISE, sessionObject, questionId, body.answer);
     }else{
         res.status(400);
         res.json({
@@ -334,32 +372,33 @@ function verifyAnswer(req, res){
 }
 
 function getResultExerciseOfTopic(req, res){
-    const topicId = req.swagger.params.topicId.value;
+    const session = req.swagger.params.session.value;
     const userId = req.userId;
     const db = req.app.db;
-    const mapTopic = req.app.users.getUser(userId);
-    const topic = mapTopic.get(topicId);
-
+    var mapSession = req.app.users.getUser(userId);
+    var sessionObject = mapSession.get(session);
+    
     const option = {
         fields: {
             pointReward: 1
         }
     }
     questionFunction.findOneDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, option).then((result) => {
-        const point = result.pointReward + topic.numberAnswerRight;
+        const point = result.pointReward + sessionObject.numberAnswerRight;
         var update = {
             $set:{
                 pointReward: point
             }
         }
-
         questionFunction.findOneAndUpdateDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, update).then((result) => {
-            if(topic.numberQuestion === topic.numberAnswer){
+            if(sessionObject.numberQuestion === sessionObject.numberAnswer){
+                mapSession = mapSession.remove(session);
+                req.app.users.insertUser(userId, mapSession);
                 res.status(200);
                 res.json({
-                    numberQuestion: topic.numberQuestion,
-                    numberAnswerRight: topic.numberAnswerRight,
-                    point: topic.numberAnswerRight
+                    numberQuestion: sessionObject.numberQuestion,
+                    numberAnswerRight: sessionObject.numberAnswerRight,
+                    point: sessionObject.numberAnswerRight
                 })
             }else{
                 res.status(400);
@@ -378,6 +417,26 @@ function getResultExerciseOfTopic(req, res){
         res.json({
             message: err
         })
+    })
+}
+
+function removeAllSession(req, res){
+    const userId = req.userId;
+    const body = req.swagger.params.body.value;
+    const listSession = body.listSession;
+    var mapSession = req.app.users.getUser(userId);
+
+    listSession.forEach(element => {
+        mapSession = mapSession.remove(element);
+    });
+
+    req.app.users.insertUser(userId, mapSession);
+
+    console.log(req.app.users.getUser(userId));
+
+    res.status(200);
+    res.json({
+        message: "Remove all session success"
     })
 }
 
@@ -423,7 +482,7 @@ function handleDataAnswer(data){
     return body;
 }
 
-function handleAnswerQuestion(res, db, nameCollection, topic, questionId, answer){
+function handleAnswerQuestion(res, db, nameCollection, sessionObject, questionId, answer){
     var option = {
         fields: {
             answerRight: 1,
@@ -431,21 +490,21 @@ function handleAnswerQuestion(res, db, nameCollection, topic, questionId, answer
             suggest: 1,
         }
     }
-    
     questionFunction.findOneDB(db, nameCollection, {_id: ObjectId(questionId)}, option).then((result) => {
         if(result.answerRight === answer){
-            if(topic.questionId !== questionId && (topic.numberAnswer < topic.numberQuestion)){
-                topic.questionId = questionId;
-                topic.numberAnswer = topic.numberAnswer + 1;
-                topic.numberAnswerRight = topic.numberAnswerRight + 1;
-                topic.timeAnswer = helpers.TIMEANSWER;
+            if(sessionObject.questionId !== questionId && (sessionObject.numberAnswer < sessionObject.numberQuestion)){
+                sessionObject.listQuestionId.push(questionId);
+                sessionObject.questionId = questionId;
+                sessionObject.numberAnswer = sessionObject.numberAnswer + 1;
+                sessionObject.numberAnswerRight = sessionObject.numberAnswerRight + 1;
+                sessionObject.timeAnswer = helpers.TIMEANSWER;
                 res.status(200);
                 res.json({
                     result: true,
                     record: result.explainRight
                 })
-            }else if(topic.timeAnswer < helpers.TIMEANSWER){
-                topic.timeAnswer = topic.timeAnswer + 1;
+            }else if(sessionObject.timeAnswer < helpers.TIMEANSWER){
+                sessionObject.timeAnswer = sessionObject.timeAnswer + 1;
                 res.status(200);
                 res.json({
                     result: true,
@@ -458,17 +517,18 @@ function handleAnswerQuestion(res, db, nameCollection, topic, questionId, answer
                 })
             }
         }else{
-            if(topic.questionId !== questionId){
-                topic.questionId = questionId;
-                topic.numberAnswer = topic.numberAnswer + 1;
-                topic.timeAnswer = 1;
+            if(sessionObject.questionId !== questionId){
+                sessionObject.listQuestionId.push(questionId);
+                sessionObject.questionId = questionId;
+                sessionObject.numberAnswer = sessionObject.numberAnswer + 1;
+                sessionObject.timeAnswer = 1;
                 res.status(200);
                 res.json({
                     result: false,
                     record: result.suggest
                 })
-            }else if(topic.timeAnswer < helpers.TIMEANSWER){
-                topic.timeAnswer = topic.timeAnswer + 1;
+            }else if(sessionObject.timeAnswer < helpers.TIMEANSWER){
+                sessionObject.timeAnswer = sessionObject.timeAnswer + 1;
                 res.status(200);
                 res.json({
                     result: false,

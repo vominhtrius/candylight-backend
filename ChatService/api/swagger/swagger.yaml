@@ -1,11 +1,18 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: Chat Service
 # during dev, should point to your local machine
-host: localhost:10010
+host: localhost:8002
 # basePath prefixes all resource paths 
-basePath: /
+basePath: /api/chat
+#
+securityDefinitions:
+  auth0:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "Authorization logged to application"
 # 
 schemes:
   # tip: remove http to make production-grade
@@ -18,40 +25,50 @@ consumes:
 produces:
   - application/json
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
+  /all_message:
+    x-swagger-router-controller: message
     get:
-      description: Returns 'Hello' to the caller
+      description: return all message of user
       # used as the method name of the controller
-      operationId: hello
-      parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
+      operationId: getAllMessage
+      # security:
+      #   - auth0: []
       responses:
         "200":
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
+            $ref: "#/definitions/AllMessageResponse"
         # responses may fall through to errors
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /swagger:
-    x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
-    required:
-      - message
+  AllMessageResponse:
+    type: object
     properties:
-      message:
+      listMessage:
+        description: list message
+        type: array
+        items:
+          $ref: "#/definitions/ItemMessage"
+  ItemMessage:
+    type: object
+    properties:
+      _id:
+        description: id message
         type: string
+      timeChat:
+        description: time chat with admin. Vd:19:15 12/12/2018
+        type: string
+      content:
+        description: content chat
+        type: string
+      isMe:
+        description: message of me?
+        type: boolean
   ErrorResponse:
     required:
       - message
