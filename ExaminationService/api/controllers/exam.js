@@ -737,6 +737,25 @@ function getListPointExam(req, res){
     }
 
     examFunction.findMany(db, helpers.NAME_DB_INFOEXAMUSER, {time: time}, option).then((result) => {
+        var sumPoint = 0;
+        var listMathPointExam = [];
+        var listVietnamesePointExam = [];
+
+        for(var i = 0; i < result.length; i++){
+            sumPoint = 0;
+            listMathPointExam = result[i].listMathPointExam;
+            listVietnamesePointExam = result[i].listVietnamesePointExam;
+            for(var j = 0; j < listMathPointExam.length; j++){
+                sumPoint = sumPoint + listMathPointExam[j].point;
+            }
+            for(var k = 0; k < listVietnamesePointExam.length; k++){
+                sumPoint = sumPoint + listVietnamesePointExam[k].point;
+            }
+            result[i].sumPoint = sumPoint;
+        }
+
+        result = lodash.sortBy(result, (item) => - item.sumPoint);
+
         res.status(200);
         res.json({
             listPointExam: result   
