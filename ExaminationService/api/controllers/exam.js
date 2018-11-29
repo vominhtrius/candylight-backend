@@ -135,7 +135,7 @@ function getListQuestionExamInMonth(req, res){
     }
 
     infoExamUser.examDoingId = examId.toString();
-    users.insertUser(userId, infoExamUser);
+    users.insertUser(userId.toString(), infoExamUser);
     var update = {
         $set:{
             examDoingId: examId.toString(),
@@ -250,7 +250,7 @@ function getInfoUserExam(req, res){
 
     examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {time: time, userId: userId}, option).then((result) => {
         if(infoExamUser.time !== time){
-            users.insertUser(userId, result);
+            users.insertUser(userId.toString(), result);
         }
         res.status(200);
         res.json({
@@ -669,7 +669,6 @@ function verifyAnwser(req, res){
 
         examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: result.time}).then((result) => {
             sumPoint = result.sumPoint + numberAnswerRight * helpers.POINT_BASE;
-            console.log(sumPoint);
             if(type === helpers.NAME_MATH_EXAM){
                 numberExam = result.numberMathExam;
                 listDidExam = result.listDidMathExam;
@@ -760,8 +759,6 @@ function getListPointExam(req, res){
     ]
 
     examFunction.aggregateDB(db, helpers.NAME_DB_INFOEXAMUSER, query).then((result)=>{
-        console.log(result);
-
         res.status(200);
             res.json({
                 listPointExam: result   
