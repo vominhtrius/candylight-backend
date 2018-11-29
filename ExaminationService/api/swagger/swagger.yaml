@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Examination Service
 # during dev, should point to your local machine
-host: 103.114.107.16:8005
+host: localhost:8005
 # basePath prefixes all resource paths 
 basePath: /api/examination
 securityDefinitions:
@@ -282,12 +282,17 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /list_point_exam/time:
+  /list_point_exam/{numberTopStudent}/time:
     x-swagger-router-controller: exam
     get:
       description: get list pointexam of all users
       operationId: getListPointExam
       parameters:
+        - name: numberTopStudent
+          in: path
+          description: number top student
+          required: true
+          type: integer
         - name: time
           in: query
           description: time

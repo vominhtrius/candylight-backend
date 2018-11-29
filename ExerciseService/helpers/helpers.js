@@ -6,6 +6,7 @@ const NAME_DB_TOPICS = "Topics";
 const NAME_DB_USERS = "Users";
 const TYPE_FILL_QUESTION = "fill";
 const TYPE_CHOICE_QUESTION = "choice";
+const POINT_BASE = 20;
 module.exports = {
     TIMEANSWER,
     NUMBERQUESTION_TOPIC,
@@ -14,5 +15,6 @@ module.exports = {
     NAME_DB_TOPICS,
     NAME_DB_USERS,
     TYPE_FILL_QUESTION,
-    TYPE_CHOICE_QUESTION
+    TYPE_CHOICE_QUESTION, 
+    POINT_BASE
 }

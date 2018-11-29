@@ -384,7 +384,7 @@ function getResultExerciseOfTopic(req, res){
         }
     }
     questionFunction.findOneDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, option).then((result) => {
-        const point = result.pointReward + sessionObject.numberAnswerRight;
+        const point = result.pointReward + sessionObject.numberAnswerRight * helpers.POINT_BASE;
         var update = {
             $set:{
                 pointReward: point
@@ -398,7 +398,7 @@ function getResultExerciseOfTopic(req, res){
                 res.json({
                     numberQuestion: sessionObject.numberQuestion,
                     numberAnswerRight: sessionObject.numberAnswerRight,
-                    point: sessionObject.numberAnswerRight
+                    point: sessionObject.numberAnswerRight * helpers.POINT_BASE
                 })
             }else{
                 res.status(400);
