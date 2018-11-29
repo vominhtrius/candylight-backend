@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Examination Service
 # during dev, should point to your local machine
-host: localhost:8005
+host: 103.114.107.16:8005
 # basePath prefixes all resource paths 
 basePath: /api/examination
 securityDefinitions:
