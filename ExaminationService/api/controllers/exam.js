@@ -33,7 +33,7 @@ function insertExam(req, res) {
         return;
     }   
 
-    if(!moment(body.time.trim(), "MM_YYYY", true).isValid()){
+    if(!moment(body.time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
             message: "Invalid the format time"
@@ -59,7 +59,7 @@ function insertExam(req, res) {
 
     // dem so exam hien co trong db cua time 
     examFunction.countDocument(db, helpers.NAME_DB_EXAM, {time: body.time, type: body.type}).then((result) => {
-        body.title = 'Exam' + result.toString();
+        body.title = helpers.NAME_EXAM + result.toString();
         body.listAnswerRight = [];
         if(result < helpers.NUMBER_EXAM){
             examFunction.insertOneDB(db, helpers.NAME_DB_EXAM, body).then((result) => {
@@ -135,7 +135,7 @@ function getListQuestionExamInMonth(req, res){
     }
 
     infoExamUser.examDoingId = examId.toString();
-    users.insertUser(userId, infoExamUser);
+    users.insertUser(userId.toString(), infoExamUser);
     var update = {
         $set:{
             examDoingId: examId.toString(),
@@ -250,7 +250,7 @@ function getInfoUserExam(req, res){
 
     examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {time: time, userId: userId}, option).then((result) => {
         if(infoExamUser.time !== time){
-            users.insertUser(userId, result);
+            users.insertUser(userId.toString(), result);
         }
         res.status(200);
         res.json({
@@ -268,7 +268,7 @@ function getInfoUserExam(req, res){
             listDidMathExam: [],
             listDidVietnameseExam: []
         }
-        users.insertUser(userId, object);
+        users.insertUser(userId.toString(), object);
 
         res.status(200);
         res.json({
@@ -287,6 +287,7 @@ function insertNewInfoExamUser(db, userId, time){
         numberMathExam: 0,
         numberVietnameseExam: 0,
         examDoingId: '',
+        sumPoint: 0,
         listMathPointExam: [],
         listVietnamesePointExam: [],
         listDidMathExam: [],
@@ -646,7 +647,7 @@ function verifyAnwser(req, res){
     var listDidExam = [];
     var listPointExam = [];
     var infoExamUser = users.getUser(userId.toString());
-
+    var sumPoint = 0;
     const option = {
         fields:{
             numberQuestion: 1,
@@ -667,6 +668,7 @@ function verifyAnwser(req, res){
         })
 
         examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: result.time}).then((result) => {
+            sumPoint = result.sumPoint + numberAnswerRight * helpers.POINT_BASE;
             if(type === helpers.NAME_MATH_EXAM){
                 numberExam = result.numberMathExam;
                 listDidExam = result.listDidMathExam;
@@ -687,7 +689,7 @@ function verifyAnwser(req, res){
 
             listPointExam.push(item);
 
-            updateInfoExamUser(db, result._id, type, numberExam + 1, listDidExam, listPointExam);
+            updateInfoExamUser(db, result._id, type, numberExam + 1, listDidExam, listPointExam, sumPoint);
             infoExamUser.examDoingId = '';
 
             res.status(200);
@@ -717,8 +719,8 @@ function verifyAnwser(req, res){
 function getListPointExam(req, res){
     const time = req.swagger.params.time.value;
     const db = req.app.db;
-    const userId = req.userId;
-
+    const numberTopStudent = req.swagger.params.numberTopStudent.value;
+    
     if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
@@ -726,41 +728,43 @@ function getListPointExam(req, res){
         })
         return;
     }
-    var option = {
-        fields: {
-            _id: 0,
-            userId: 1,
-            time: 1,
-            listMathPointExam: 1,
-            listVietnamesePointExam: 1,
-        }
+
+    if(numberTopStudent < 5){
+        numberTopStudent = helpers.NUMBER_TOP_STUDENT;
     }
-
-    examFunction.findMany(db, helpers.NAME_DB_INFOEXAMUSER, {time: time}, option).then((result) => {
-        var sumPoint = 0;
-        var listMathPointExam = [];
-        var listVietnamesePointExam = [];
-
-        for(var i = 0; i < result.length; i++){
-            sumPoint = 0;
-            listMathPointExam = result[i].listMathPointExam;
-            listVietnamesePointExam = result[i].listVietnamesePointExam;
-            for(var j = 0; j < listMathPointExam.length; j++){
-                sumPoint = sumPoint + listMathPointExam[j].point;
+    
+    const query = [
+        {
+            $match:{
+                time: time
             }
-            for(var k = 0; k < listVietnamesePointExam.length; k++){
-                sumPoint = sumPoint + listVietnamesePointExam[k].point;
+        },
+        {
+            $project:{
+                userId: true,
+                time: true,
+                listMathPointExam: true,
+                listVietnamesePointExam: true,
+                sumPoint: true,
+            },
+        },
+        {
+            $sort:{
+                sumPoint: -1
             }
-            result[i].sumPoint = sumPoint;
+        },
+        {
+            $limit:numberTopStudent
         }
+    ]
 
-        result = lodash.sortBy(result, (item) => - item.sumPoint);
-
+    examFunction.aggregateDB(db, helpers.NAME_DB_INFOEXAMUSER, query).then((result)=>{
         res.status(200);
-        res.json({
-            listPointExam: result   
+            res.json({
+                listPointExam: result   
         })
     }).catch((err) => {
+        console.log(err);
         res.status(400);
         res.json({
             message: "Do not get list point exam"
@@ -768,7 +772,7 @@ function getListPointExam(req, res){
     })
 }
 
-function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listPointExam){
+function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listPointExam, sumPoint){
     var update = {};
 
     if(type === helpers.NAME_MATH_EXAM) {
@@ -778,6 +782,7 @@ function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listP
                 listDidMathExam: listDidExam,
                 listMathPointExam: listPointExam,
                 examDoingId: '',
+                sumPoint: sumPoint
             }
         }
     }else {
@@ -787,11 +792,11 @@ function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listP
                 listDidVietnameseExam: listDidExam,
                 listVietnamesePointExam: listPointExam,
                 examDoingId: '',
+                sumPoint: sumPoint
             }
         }
     }
     examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_INFOEXAMUSER, {_id: examUserId}, update).then((result) => {
-        console.log("update info exam user success")
     }).catch((err) => {
         console.log(err);
     })

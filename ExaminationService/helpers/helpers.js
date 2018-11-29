@@ -5,14 +5,16 @@ const NAME_DB_CHOICEQUESTION_EXAM = "ChoiceQuestionExam";
 const NAME_DB_FILLQUESTION_EXAM = "FillQuestionExam";
 const NAME_DB_INFOEXAMUSER = "InfoExamUsers";
 const NUMBER_EXAM = 3;
+const NAME_EXAM = 'exam';
 const NAME_MATH_EXAM = 'math';
 const NAME_VN_EXAM = 'vietnamese';
-const POINT_BASE = 0.5;
+const POINT_BASE = 20;
 const TYPE_CHOICE_QUESTION = 'choice';
 const TYPE_FILL_QUESTION = 'fill';
 const CHECK_TRUE = 'true';
 const CHECK_FALSE = 'false';
 const FORMAT_DATE = 'MM_YYYY';
+const NUMBER_TOP_STUDENT = '5';
 module.exports= {
     TIMEDO,
     NUMBERQUESTION,
@@ -28,5 +30,7 @@ module.exports= {
     TYPE_FILL_QUESTION,
     CHECK_TRUE,
     CHECK_FALSE,
-    FORMAT_DATE
+    FORMAT_DATE,
+    NUMBER_TOP_STUDENT,
+    NAME_EXAM
 }
