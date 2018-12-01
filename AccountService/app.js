@@ -26,6 +26,7 @@ var config = {
           next();
         });
       } else {
+        //next();
         next(new Error('access denied!'));
       }
     }

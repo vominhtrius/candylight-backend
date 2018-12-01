@@ -4,9 +4,9 @@ info:
   title: Quan Ly Du An Phan Men
 # during dev, should point to your local machine
 host: 103.114.107.16:8001
-#host: locahost:8001
+#host: localhost:8001
 # basePath prefixes all resource paths 
-basePath: /api
+basePath: /api/account
 # 
 securityDefinitions:
   auth0:
@@ -33,7 +33,7 @@ tags:
 produces:
   - application/json
 paths:
-  /account:
+  /:
     x-swagger-router-controller: accountController
     post:
       tags:
@@ -83,7 +83,7 @@ paths:
           description: Sign-up Error
           schema:
             $ref: "#/definitions/ErrorResponse"       
-  /account_facebook:
+  /facebook:
     x-swagger-router-controller: accountController
     post:
       tags:
@@ -109,7 +109,7 @@ paths:
           description: Login Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /account_google:
+  /google:
     x-swagger-router-controller: accountController
     post:
       tags:
@@ -135,7 +135,7 @@ paths:
           description: Login Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /account/profile:
+  /profile:
     # binds a127 app logic to a route
     x-swagger-router-controller: accountController
     get:
@@ -190,6 +190,32 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"    
+  /profiles:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: accountController
+    get:
+      description: Returns 'Profile account' to the caller
+      # used as the method name of the controller
+      operationId: getUsers
+      tags:
+        - profile
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/InfoResponse"
+        "401":
+          description: Fail
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageReturn"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 definitions:
   UserSignin:
     type: object

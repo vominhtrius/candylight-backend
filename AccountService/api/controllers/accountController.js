@@ -96,7 +96,9 @@ function signinFB(req, res) {
       if (value == null) { 
         console.log("Create user");
         var user = {
+          
           userName: userId,
+          type: "user",
           passWord: null,
           email: email,
           firstName: fName,
@@ -199,6 +201,7 @@ function signinGoogle(req, res) {
         var user = {
           userName: userId,
           passWord: null,
+          type: "user",
           email: email,
           firstName: fName,
           lastName: lName,
@@ -306,9 +309,11 @@ function signup(req, res) {
     });
     return;
   }
+
   var user = {
     userName: userName,
     passWord: md5(passWord),
+    type: "user",
     email: email,
     firstName: fName,
     lastName: "",
@@ -322,7 +327,7 @@ function signup(req, res) {
     regionParent: "",
     pointReward: 0,
   };
-  console.log(user);
+
   accountRepo.insert(user, (err, result) => {
     if (err) {
       console.log(err);
@@ -554,6 +559,17 @@ function getInfo(req, res) {
   }
 }
 
+function getUsers(req, res) {
+  accountRepo.findAll(value => {
+    console.log(value);
+    res.status(200);
+    res.json({
+      success: true,
+      profiles: value
+    });
+  })
+}
+
 module.exports = {
   signin: signin,
   signup: signup,
@@ -561,4 +577,6 @@ module.exports = {
   getInfo: getInfo,
   signinFB: signinFB,
   signinGoogle: signinGoogle,
+  getUsers: getUsers,
+  
 };
