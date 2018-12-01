@@ -559,6 +559,17 @@ function getInfo(req, res) {
   }
 }
 
+function getUsers(req, res) {
+  accountRepo.findAll(value => {
+    console.log(value);
+    res.status(200);
+    res.json({
+      success: true,
+      profiles: value
+    });
+  })
+}
+
 module.exports = {
   signin: signin,
   signup: signup,
@@ -566,4 +577,6 @@ module.exports = {
   getInfo: getInfo,
   signinFB: signinFB,
   signinGoogle: signinGoogle,
+  getUsers: getUsers,
+  
 };

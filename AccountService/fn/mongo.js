@@ -57,3 +57,24 @@ exports.findOne = (data, collectionMG, callback) =>
       });
     }
   });
+
+exports.findAll = (data, collectionMG, callback) =>
+  MongoClient.connect(url, (err, db) => {
+    if (err) {
+      console.log("Unable to connect to the mongoDB server. Error:", err);
+    } else {
+      console.log("Connection established to", url);
+
+      const collection = db.db('qlpm').collection(collectionMG);
+      
+      collection.find(data, {'fields': { 'passWord': 0 }}).toArray(function(err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Query find all");
+        }
+        db.close();
+        return callback(result);
+      });
+    }
+  });

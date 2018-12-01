@@ -14,3 +14,7 @@ exports.update = (data, dataNew, callback) => {
 exports.findOne = (data, callback) => {
     return db.findOne(data, collection, callback);
 }
+
+exports.findAll = ( callback) => {
+    return db.findAll({}, collection, callback);
+}
