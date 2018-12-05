@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Quan Ly Du An Phan Men
 # during dev, should point to your local machine
-host: localhost:8003
+host: 103.114.107.16:8003
 # basePath prefixes all resource paths 
 basePath: /api/learning
 # 
