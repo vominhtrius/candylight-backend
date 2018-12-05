@@ -24,7 +24,8 @@ function get(req, res) {
       value = [];
     res.status(200);
     res.json({success: true, value: {categories: value } });
-  }).catch( error => {
+  }).catch( err => {
+    console.log(err.err);
     res.status(200);
     res.json({success: false, message: err.err });
   });

@@ -212,7 +212,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /categorys:
+  /categories:
     # binds a127 app logic to a route
     x-swagger-router-controller: category
     get:
@@ -253,7 +253,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /categorys/{categoryId}:
+  /categories/{categoryId}:
     # binds a127 app logic to a route
     x-swagger-router-controller: category
     get:
