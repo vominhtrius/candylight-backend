@@ -8,10 +8,11 @@ const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
 const jwt = require('jsonwebtoken')
 const configJWT = require('./api/helpers/configJWT.json');
 const database = require('./database/database.js');
+const WebSocketServer = require('ws');
+const http = require('http');
 // const users = require('./model/users.js');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-module.exports = app; // for testing
 
 var config = {
   appRoot: __dirname, // required config
@@ -34,7 +35,12 @@ var config = {
   }
 };
 
-///////////////////////Start websocket
+// ///////////////////////Start websocket/////////////// ///////////////
+app.server = http.createServer(app);
+app.wss = new WebSocketServer.Server({
+  server: app.server,
+})
+
 //////////////////////connect database//////////////////////////////
 database.connect().then((db)=>{
   console.log("connect database success");
@@ -54,6 +60,8 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   swaggerExpress.register(app);
 
   var port = process.env.PORT || 8002;
-  app.listen(port);
+  app.server.listen(port);
 
 });
+
+module.exports = app; // for testing
