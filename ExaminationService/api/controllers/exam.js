@@ -249,7 +249,7 @@ function getInfoUserExam(req, res){
     }
 
     examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {time: time, userId: userId}, option).then((result) => {
-        if(infoExamUser.time !== time){
+        if(users.listUsers.size === 0 || infoExamUser.time !== time){
             users.insertUser(userId.toString(), result);
         }
         res.status(200);
@@ -293,7 +293,17 @@ function insertNewInfoExamUser(db, userId, time){
         listDidMathExam: [],
         listDidVietnameseExam: []
     }
-    examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
+    const option = {
+        fields:{
+            userName: 1,
+        }
+    }
+    examFunction.findOneDB(db, helpers.NAME_DB_USERS,{_id : userId}, option).then((result) => {
+        object.userName = result.userName;
+        examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
+    }).catch((err) => {
+        console.log(err)
+    })
 }
 
 function updateExam(req, res){
@@ -742,6 +752,7 @@ function getListPointExam(req, res){
         {
             $project:{
                 userId: true,
+                userName: true,
                 time: true,
                 listMathPointExam: true,
                 listVietnamesePointExam: true,

@@ -66,9 +66,9 @@ definitions:
       content:
         description: content chat
         type: string
-      isMe:
+      idSender:
         description: message of me?
-        type: boolean
+        type: string
   ErrorResponse:
     required:
       - message
