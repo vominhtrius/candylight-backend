@@ -4,6 +4,7 @@ const NAME_DB_EXAM = "Exams";
 const NAME_DB_CHOICEQUESTION_EXAM = "ChoiceQuestionExam";
 const NAME_DB_FILLQUESTION_EXAM = "FillQuestionExam";
 const NAME_DB_INFOEXAMUSER = "InfoExamUsers";
+const NAME_DB_USERS = "Users";
 const NUMBER_EXAM = 3;
 const NAME_EXAM = 'exam';
 const NAME_MATH_EXAM = 'math';
@@ -22,6 +23,7 @@ module.exports= {
     NAME_DB_CHOICEQUESTION_EXAM,
     NAME_DB_FILLQUESTION_EXAM,
     NAME_DB_INFOEXAMUSER,
+    NAME_DB_USERS,
     NUMBER_EXAM,
     NAME_MATH_EXAM,
     NAME_VN_EXAM,
