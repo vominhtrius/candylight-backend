@@ -10,6 +10,7 @@ const configJWT = require('./api/helpers/configJWT.json');
 const database = require('./database/database.js');
 const WebSocketServer = require('ws');
 const http = require('http');
+const connection= require('./models/connection.js');
 // const users = require('./model/users.js');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -50,6 +51,8 @@ database.connect().then((db)=>{
   throw(err);
 })
 
+//////////////////////////Create model socketServer////////////////////////
+var conn = new connection(app);
 
 ////////////////////////////////////////////////////////////////////
 

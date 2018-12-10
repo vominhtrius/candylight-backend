@@ -106,6 +106,15 @@ function getListQuestionExamInMonth(req, res){
         return;
     }
 
+
+    if(users.listUsers.size === 0 || infoExamUser.examDoingId.length !== 0){
+        res.status(400);
+            res.json({
+                message: "Invalid request"
+            }) 
+        return;
+    }
+
     if(infoExamUser.time === time){
         if(infoExamUser.listDidMathExam.indexOf(examId.toString()) !== -1){
             res.status(400);
@@ -123,12 +132,6 @@ function getListQuestionExamInMonth(req, res){
             res.status(400);
             res.json({
                 message: "Exam is doing"
-            }) 
-            return;
-        }else if(infoExamUser.examDoingId.length !== 0){
-            res.status(400);
-            res.json({
-                message: "Invalid request"
             }) 
             return;
         }
