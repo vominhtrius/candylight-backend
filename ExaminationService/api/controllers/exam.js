@@ -303,7 +303,6 @@ function insertNewInfoExamUser(db, userId, time){
         }
     }
     examFunction.findOneDB(db, helpers.NAME_DB_USERS,{_id : userId}, option).then((result) => {
-        console.log(result);
         object.fullName = result.lastName + " " + result.firstName;
         examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
     }).catch((err) => {
