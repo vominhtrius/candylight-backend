@@ -726,7 +726,6 @@ function verifyAnwser(req, res){
             message: "Not found exam"
         })
     })
-
 }
 
 function getListPointExam(req, res){

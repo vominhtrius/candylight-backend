@@ -46,13 +46,14 @@ app.wss = new WebSocketServer.Server({
 database.connect().then((db)=>{
   console.log("connect database success");
   app.db = db;
+  //////////////////////////Create model socketServer////////////////////////
+  var conn = new connection(app);
 }).catch((err) => {
   console.log("connect database err: " + err);
   throw(err);
 })
 
-//////////////////////////Create model socketServer////////////////////////
-var conn = new connection(app);
+
 
 ////////////////////////////////////////////////////////////////////
 
