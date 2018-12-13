@@ -4,9 +4,13 @@ const NAME_DB_CHOICEQUESTION_EXERCISE = "ChoiceQuestionExercise";
 const NAME_DB_FILLQUESTION_EXERCISE = "FillQuestionExercise";
 const NAME_DB_TOPICS = "Topics";
 const NAME_DB_USERS = "Users";
+const NAME_DB_QUESTION_GAME_QUIZ = "QuestionGameQuiz";
+const NAME_DB_QUESTION_GAME_ARCHER = "QuestionGameArcher";
+const NAME_DB_QUESTION_GAME_FINDTREASURE = "QuestionGameFindTreasure";
 const TYPE_FILL_QUESTION = "fill";
 const TYPE_CHOICE_QUESTION = "choice";
 const POINT_BASE = 20;
+
 module.exports = {
     TIMEANSWER,
     NUMBERQUESTION_TOPIC,
@@ -16,5 +20,8 @@ module.exports = {
     NAME_DB_USERS,
     TYPE_FILL_QUESTION,
     TYPE_CHOICE_QUESTION, 
-    POINT_BASE
+    POINT_BASE,
+    NAME_DB_QUESTION_GAME_QUIZ,
+    NAME_DB_QUESTION_GAME_ARCHER,
+    NAME_DB_QUESTION_GAME_FINDTREASURE
 }

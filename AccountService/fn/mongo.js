@@ -30,7 +30,6 @@ exports.update = (dataOld, dataNew, collectionMG, callback) =>
       const collection = db.db('qlpm').collection(collectionMG);
       
       collection.update(dataOld, dataNew, function(err, result) {
-
         db.close();
         return callback(err, result);
       });
@@ -46,7 +45,7 @@ exports.findOne = (data, collectionMG, callback) =>
 
       const collection = db.db('qlpm').collection(collectionMG);
       
-      collection.findOne(data, function(err, result) {
+      collection.findOne(data,{'fields': { 'passWord': 0 }}, function(err, result) {
         if (err) {
           console.log(err);
         } else {
