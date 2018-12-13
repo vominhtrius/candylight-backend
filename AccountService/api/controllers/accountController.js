@@ -7,6 +7,7 @@ const accountRepo = require('../../repository/accountRepo')
 const md5 = require('md5')
 var ObjectId = require('mongodb').ObjectID;
 const request = require('request');
+const MedalConfig = require('../../config/medals');
 
 //db.createIndex({email:1},{unique:true});
 //Singin user
@@ -561,13 +562,84 @@ function getInfo(req, res) {
 
 function getUsers(req, res) {
   accountRepo.findAll(value => {
-    console.log(value);
     res.status(200);
     res.json({
       success: true,
       profiles: value
     });
   })
+}
+
+
+function buyMedal(req, res) {
+  var body = req.swagger.params.body;
+  var medalId = body.value.medalId;
+  var userId = req.userId;
+  if (userId) {
+    accountRepo.findOne({
+      "_id": new ObjectId(userId)
+    }, (value) => {
+      if (value == null) {
+        res.status(401);
+        res.json({
+          success: false,
+          message: 'User not found'
+        });
+      } else {
+        var pointReward = value.pointReward;   
+        var medal = MedalConfig.MEDALS.find(medal => {return medal._id === medalId})
+        
+        var isBuyMedal = value.medals ? value.medals.indexOf(medalId) : -1;
+        if(isBuyMedal > -1) {
+          res.status(400);
+          res.json({
+            success: false,
+            message: 'you bought medals before'
+          });
+        }
+        if(pointReward < medal.point) {
+          res.status(400);
+          res.json({
+            success: false,
+            message: 'point not enought to buy medal'
+          });
+        } else {
+          accountRepo.update( {"_id": new ObjectId(userId)} , {
+            $push: { medals: medal._id },
+            $set: { pointReward: pointReward - medal.point}
+          },(err, result) => {
+          });
+          if(!value.medals)
+            value = Object.assign({medals: [medal._id]}, value);
+          else 
+            value.medals.push(medal._id);
+          console.log(value);
+          value.pointReward = value.pointReward - medal.point;
+          res.status(200);
+          res.json({
+            success: true,
+            profile: value,
+            message: ''
+          });
+        }
+      }
+    });
+  } else {
+    res.status(403);
+    res.json({
+      success: false,
+      message: 'access denied'
+    });
+  }
+}
+
+function getMedal(req, res) {
+  res.status(200);
+  res.json({
+    success: true,
+    value: {medal: MedalConfig.MEDALS},
+    message: ''
+  });
 }
 
 module.exports = {
@@ -578,5 +650,6 @@ module.exports = {
   signinFB: signinFB,
   signinGoogle: signinGoogle,
   getUsers: getUsers,
-  
+  buyMedal: buyMedal,
+  getMedal: getMedal,
 };
