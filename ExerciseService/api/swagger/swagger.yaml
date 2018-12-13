@@ -242,7 +242,7 @@ paths:
       parameters:
         - name: id_game
           in: path
-          description: id of game
+          description: id of game is math_0 or vietnamese_0
           required: true
           type: string
         - name: body
@@ -272,7 +272,7 @@ paths:
       parameters:
         - name: id_game
           in: path
-          description: id of game
+          description: id of game is math_1 or vietnamese_1
           required: true
           type: string
         - name: body
@@ -302,7 +302,7 @@ paths:
       parameters:
         - name: id_game
           in: path
-          description: id of game
+          description: math_2 or vietnamese_2
           required: true
           type: string
         - name: body
@@ -333,7 +333,7 @@ paths:
       parameters:
         - name: id_game
           in: path
-          description: id of game
+          description: math_0 or vietnamese_0
           required: true
           type: string
         - name: numberQuestion
@@ -363,7 +363,7 @@ paths:
       parameters:
         - name: id_game
           in: path
-          description: id of game
+          description: math_1 or vietnamese_1
           required: true
           type: string
         - name: numberQuestion
@@ -393,7 +393,7 @@ paths:
       parameters:
         - name: id_game
           in: path
-          description: id of game
+          description: math_2 or vietnamese_2
           required: true
           type: string
         - name: numberQuestion
@@ -456,7 +456,7 @@ paths:
       parameters:
         - name: id_game
           in: path
-          description: id of game
+          description: id of game tuy dang o game id nao, math_0, math_1, math_2, vietnamese_0, vietnamese_1, vietnamese_2
           required: true
           type: string
         - name: body

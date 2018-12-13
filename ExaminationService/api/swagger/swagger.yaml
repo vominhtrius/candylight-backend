@@ -513,6 +513,9 @@ definitions:
       userId:
         description: id user 
         type: string
+      fullName:
+        description: fullName
+        type: string
       time:
         description: time
         type: string
@@ -526,6 +529,9 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/ItemPoint"
+      sumPoint:
+        description: sum point
+        type: integer
   ItemPoint:
     type: object
     properties:
