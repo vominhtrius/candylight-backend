@@ -56,7 +56,9 @@ class Connection {
             if(clientReceiverConnection && clientReceiverConnection.isOnline === true){   
                 clientReceiverConnection.ws.send(JSON.stringify(messageTmp));
             }
-            clientSendConnection.ws.send(JSON.stringify(messageTmp));
+            if(clientSendConnection.ws){
+                clientSendConnection.ws.send(JSON.stringify(messageTmp));
+            }
         }).catch((err) => {
             console.log("err insert message in db: " + err);
         })
@@ -82,7 +84,9 @@ class Connection {
                         listUsersOnline: this.listUsersOnline
                     }
                     // console.log("send list user online: ");
-                    clientSendConnection.ws.send(JSON.stringify(message));
+                    if(clientSendConnection.ws){
+                        clientSendConnection.ws.send(JSON.stringify(message));
+                    }
                 }
                 break;
             case helpers.TYPE_MESSAGE_CREATE_USER:
@@ -105,7 +109,9 @@ class Connection {
             type: helpers.TYPE_MESSAGE_ID_GV,
             idGVTV: this.idGVTV
         }
-        ws.send(JSON.stringify(message));
+        if(ws){
+            ws.send(JSON.stringify(message));
+        }
     }
 
     handleSendUserIdOnline(userId){
@@ -116,7 +122,9 @@ class Connection {
                 type: helpers.TYPE_USERID_ONLINE,
                 idUserOnline: userId
             }         
-            clientReceiverConnection.ws.send(JSON.stringify(message));
+            if(clientReceiverConnection.ws){
+                clientReceiverConnection.ws.send(JSON.stringify(message));
+            }
         }
     }
 
@@ -128,7 +136,9 @@ class Connection {
                 type: helpers.TYPE_USERID_OFFLINE,
                 idUserOffline: userId
             }         
-            clientReceiverConnection.ws.send(JSON.stringify(message));
+            if(clientReceiverConnection.ws){
+                clientReceiverConnection.ws.send(JSON.stringify(message));
+            }
         }
     }
 
@@ -140,7 +150,9 @@ class Connection {
                 type: helpers.TYPE_MESSAGE_CREATE_USER,
                 data: data
             }         
-            clientReceiverConnection.ws.send(JSON.stringify(message));
+            if(clientReceiverConnection.ws){
+                clientReceiverConnection.ws.send(JSON.stringify(message));
+            }
         }
     }
 
