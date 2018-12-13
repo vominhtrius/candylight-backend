@@ -3,8 +3,8 @@ info:
   version: "0.0.1"
   title: Quan Ly Du An Phan Men
 # during dev, should point to your local machine
-host: 103.114.107.16:8001
-#host: localhost:8001
+#host: 103.114.107.16:8001
+host: localhost:8001
 # basePath prefixes all resource paths 
 basePath: /api/account
 # 
@@ -30,6 +30,8 @@ tags:
     url: "http://swagger.io"
 - name: "profile"
   description: "Operations about profile user"
+- name: "medal"
+  description: "Operations about medal"
 produces:
   - application/json
 paths:
@@ -216,6 +218,59 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /medal:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: accountController
+    get:
+      description: Returns all medal to the caller
+      # used as the method name of the controller
+      operationId: getMedal
+      tags:
+        - medal
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageReturn"
+        "401":
+          description: Fail
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageReturn"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Returns medal bought to the caller
+      # used as the method name of the controller
+      operationId: buyMedal
+      security:
+        - auth0: []
+      tags:
+        - medal
+      parameters:
+        - in: body
+          name: body
+          description: The medal user need buy
+          schema:
+            $ref: '#/definitions/Medal'     # <----------
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageReturn"
+        "401":
+          description: Fail
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageReturn"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 definitions:
   UserSignin:
     type: object
@@ -338,4 +393,11 @@ definitions:
       - message
     properties:
       message:
+        type: string
+  Medal:
+    type: object
+    required:
+      - medalId
+    properties:
+      medalId:
         type: string
