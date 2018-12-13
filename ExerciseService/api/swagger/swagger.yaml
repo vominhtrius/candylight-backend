@@ -6,7 +6,7 @@ info:
 host: 103.114.107.16:8004
 # basePath prefixes all resource paths 
 basePath: /api/exercise
-# 
+
 securityDefinitions:
   auth0:
     type: apiKey
@@ -233,6 +233,251 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+            
+  /game/game_quiz/{id_game}:
+    x-swagger-router-controller: questionGame
+    post:
+      description: post question of game quize
+      operationId: insertQuestionForGameQuiz
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: question of game quiz
+          schema:
+            $ref: "#/definitions/QuestionGameQuiz" 
+            
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /game/game_archer/{id_game}:
+    x-swagger-router-controller: questionGame
+    post:
+      description: post question of game archer
+      operationId: insertQuestionForGameArcher
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: question of game quiz
+          schema:
+            $ref: "#/definitions/QuestionGameArcher" 
+            
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /game/game_find_treasure/{id_game}:
+    x-swagger-router-controller: questionGame
+    post:
+      description: post question of game archer
+      operationId: insertQuestionForGameFindTreasure
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: question of game quiz
+          schema:
+            $ref: "#/definitions/QuestionGameArcher" 
+            
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /game/game_quiz/{id_game}/number_question:
+    x-swagger-router-controller: questionGame
+    get:
+      description: Returns list questions of game quiz
+      operationId: getListQuestionsOfGameQuiz
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: numberQuestion
+          in: query
+          description: number question wanted get
+          required: true
+          type: integer
+        
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListQuestionOfGameQuize"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /game/game_archer/{id_game}/number_question:
+    x-swagger-router-controller: questionGame
+    get:
+      description: Returns list questions of game archer
+      operationId: getListQuestionsOfGameArcher
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: numberQuestion
+          in: query
+          description: number question wanted get
+          required: true
+          type: integer
+        
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListQuestionOfGameArcher"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /game/game_find_treasure/{id_game}/number_question:
+    x-swagger-router-controller: questionGame
+    get:
+      description: Returns list questions of game archer
+      operationId: getListQuestionsOfGameFindTreasure
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: numberQuestion
+          in: query
+          description: number question wanted get
+          required: true
+          type: integer
+        
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListQuestionOfGameArcher"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  
+            
+  /game/verify/{id_game}:
+    x-swagger-router-controller: questionGame
+    post:
+      description: verify answer game exam
+      operationId: verifyGameExam
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: question of game quiz
+          schema:
+            $ref: "#/definitions/ListAnswerGameExam" 
+            
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ResultGameExam"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          
+  /game/point_game_exam/{id_game}:
+    x-swagger-router-controller: questionGame
+    post:
+      description: point game exam
+      operationId: receivePointGameExam
+      parameters:
+        - name: id_game
+          in: path
+          description: id of game
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: point
+          schema:
+            $ref: "#/definitions/PointGameExam" 
+            
+      security:
+      - auth0: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ResultGameExam"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 # complex objects have schema definitions
 definitions:
   ListQuestionOfTopic:
@@ -403,6 +648,73 @@ definitions:
         type: array
         items:
           type: string
+          
+  QuestionGameQuiz:
+    type: object
+    properties:
+      question:
+        description: conten of question
+        type: string
+      listAnswers:
+        description: answer of question
+        type: array
+        items:
+            type: string
+      correctAnswer:
+        description: answer right
+        type: integer
+  ListQuestionOfGameQuize:
+    type: object
+    properties:
+      listQuestions:
+        description: list question of game quiz
+        type: array
+        items:
+          $ref: "#/definitions/QuestionGameQuiz"
+  ListAnswerGameExam:
+    type: object
+    properties:
+      listAnswer:
+        description: list answer of game exam
+        type: array
+        items:
+          type: string
+  QuestionGameArcher:
+    type: object
+    properties:
+      question:
+        description: content of question
+        type: string
+      id: 
+        description: id of question
+        type: integer
+      answer:
+        description: answer of question
+        type: string
+  ListQuestionOfGameArcher:
+    type: object
+    properties:
+      listQuestions:
+        description: list question of game quiz
+        type: array
+        items:
+          $ref: "#/definitions/QuestionGameArcher"
+  PointGameExam:
+    type: object
+    properties:
+      point:
+        description: point of game exam
+        type: integer
+  ResultGameExam: 
+    type: object
+    properties:
+      numberAnswerRight:
+        description: number answer right
+        type: integer
+      point:
+        description: sum point game exam
+        type: integer
+
   ErrorResponse:
     required:
       - message
