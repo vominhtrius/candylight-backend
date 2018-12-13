@@ -520,12 +520,12 @@ definitions:
         description: list math point exam
         type: array
         items:
-           $ref: "#/definitions/ItemPoint"
+          $ref: "#/definitions/ItemPoint"
       listVietnamesePointExam:
         description: list vietnamese point exam
         type: array
         items:
-           $ref: "#/definitions/ItemPoint"
+          $ref: "#/definitions/ItemPoint"
   ItemPoint:
     type: object
     properties:

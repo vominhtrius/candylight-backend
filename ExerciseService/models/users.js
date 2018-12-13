@@ -3,6 +3,7 @@ class Users{
     constructor(app){
         this.app = app;
         this.listUsers = new OrderedMap();
+        this.listUsersPlayGame = new OrderedMap();
     }
 
     insertUser (userId, object){
@@ -11,6 +12,13 @@ class Users{
 
     getUser(userId){
         return this.listUsers.get(userId);
+    }
+
+    insertUserPlayGame (userId, object){
+        this.listUsersPlayGame = this.listUsersPlayGame.set(userId, object);
+    }
+    getUserPlayGame(userId){
+        return this.listUsersPlayGame.get(userId);
     }
 }
 
