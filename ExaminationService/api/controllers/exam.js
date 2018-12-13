@@ -246,7 +246,7 @@ function getInfoUserExam(req, res){
 
     var option = {
         fields:{
-            listMathPointExam:0,
+            listMathPointExam: 0,
             listVietnamesePointExam: 0
         }
     }
@@ -298,11 +298,12 @@ function insertNewInfoExamUser(db, userId, time){
     }
     const option = {
         fields:{
-            userName: 1,
+            firstName: 1,
+            lastName: 1,
         }
     }
     examFunction.findOneDB(db, helpers.NAME_DB_USERS,{_id : userId}, option).then((result) => {
-        object.userName = result.userName;
+        object.fullName = result.lastName + result.firstName;
         examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
     }).catch((err) => {
         console.log(err)
@@ -669,6 +670,13 @@ function verifyAnwser(req, res){
         }
     }
 
+    if(infoExamUser.examDoingId === ''){
+        res.status(400);
+        res.json({
+            message: "Exam is submit"
+        })
+    }
+    
     examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id : examId}, option).then((result) => {
         numberQuestion = result.numberQuestion;
         result.listAnswerRight.forEach((element, index) => {
@@ -679,22 +687,23 @@ function verifyAnwser(req, res){
                 listCheckedAnswer.push(helpers.CHECK_FALSE);
             }
         })
+        console.log(infoExamUser);
 
         examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: result.time}).then((result) => {
             sumPoint = result.sumPoint + numberAnswerRight * helpers.POINT_BASE;
             if(type === helpers.NAME_MATH_EXAM){
                 numberExam = result.numberMathExam;
-                listDidExam = result.listDidMathExam;
+                listDidExam = result.listDidMathExam.push(examId.toString());
                 listPointExam = result.listMathPointExam;
                 infoExamUser.listDidMathExam = listDidExam;
             }else {
                 numberExam = result.numberVietnameseExam;
-                listDidExam = result.listDidVietnameseExam;
+                listDidExam = result.listDidVietnameseExam.push(examId.toString());
                 listPointExam = result.listVietnamesePointExam;
                 infoExamUser.listDidVietnameseExam = listDidExam;
             }
 
-            listDidExam.push(examId.toString());
+            // listDidExam.push(examId.toString());
             var item = {
                 title: title,
                 point: numberAnswerRight * helpers.POINT_BASE
@@ -754,7 +763,7 @@ function getListPointExam(req, res){
         {
             $project:{
                 userId: true,
-                userName: true,
+                fullName: true,
                 time: true,
                 listMathPointExam: true,
                 listVietnamesePointExam: true,
