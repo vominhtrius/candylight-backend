@@ -8,7 +8,7 @@ class Connection {
     constructor(app) {
         this.app = app;
         this.listUsers = new OrderedMap();
-        this.listUsersOnline = [];
+        this.listUsersOnline = new Set();
         this.idGVTV = '';
         this.getUserIdGVTV();
         this.run();
@@ -77,13 +77,14 @@ class Connection {
                 this.listUsers = this.listUsers.set(userId, clientSendConnection);
                 if(userId !== this.idGVTV.toString()){
                     this.handleSendIdGVTV(clientSendConnection.ws);
-                    this.listUsersOnline.push(userId);
+                    this.listUsersOnline.add(userId);
                 }else{
                     var message = {
                         type: helpers.TYPE_LIST_USER_ONLINE,
-                        listUsersOnline: this.listUsersOnline
+                        listUsersOnline: Array.from(this.listUsersOnline)
                     }
                     // console.log("send list user online: ");
+                    // console.log(this.listUsersOnline);
                     if(clientSendConnection.ws){
                         clientSendConnection.ws.send(JSON.stringify(message));
                     }
@@ -117,7 +118,7 @@ class Connection {
     handleSendUserIdOnline(userId){
         const clientReceiverConnection = this.listUsers.get(this.idGVTV.toString());
         if(clientReceiverConnection && clientReceiverConnection.isOnline === true){  
-            // console.log("send id user online")
+            // console.log("send id user online: " + userId);
                 var message = {
                 type: helpers.TYPE_USERID_ONLINE,
                 idUserOnline: userId
@@ -131,7 +132,7 @@ class Connection {
     handleSendUserIdOffline(userId){
         const clientReceiverConnection = this.listUsers.get(this.idGVTV.toString());
         if(clientReceiverConnection && clientReceiverConnection.isOnline === true){  
-            // console.log("send id user offline")
+            // console.log("send id user offline: " + userId);
                 var message = {
                 type: helpers.TYPE_USERID_OFFLINE,
                 idUserOffline: userId
@@ -199,7 +200,8 @@ class Connection {
                 // console.log("user: " + userId + " close connect");
                 var clientConnection = this.listUsers.get(userId);
                 clientConnection.isOnline = false;
-                this.remove(this.listUsersOnline, userId);
+                // this.remove(this.listUsersOnline, userId);
+                this.listUsersOnline.delete(userId);
                 this.handleSendUserIdOffline(userId);
             })
         })
