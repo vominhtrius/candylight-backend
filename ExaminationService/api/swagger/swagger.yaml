@@ -312,6 +312,34 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /result_point_exam/{userId}/time:
+    x-swagger-router-controller: exam
+    get:
+      description: get result point exam of user in month
+      operationId: getResultPointExam
+      parameters:
+        - name: time
+          in: query
+          required: true
+          type: string
+          description: time have format MM_YYYY such as 12_2018
+        - name: userId
+          in: path
+          required: true
+          type: string
+          description: id of user
+          
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ResultPointExam"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+      
+  
 # complex objects have schema definitions
 definitions:
   Exam:
@@ -542,6 +570,13 @@ definitions:
       point:
         description: point of exam
         type: number
+        
+  ResultPointExam:
+    type: object
+    properties:
+      resultPointExam:
+        $ref: "#/definitions/ItemPointExam"
+      
   ExamResponse:
     required:
       - message
