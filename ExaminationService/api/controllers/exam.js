@@ -94,8 +94,8 @@ function getListQuestionExamInMonth(req, res){
     const db = req.app.db;
     const userId = ObjectId(req.userId);
     const time = moment().format(helpers.FORMAT_DATE); 
-    var numberQuestionTmp = 0;
     const users = req.app.users;
+    var numberQuestionTmp = 0;
     var infoExamUser = users.getUser(userId.toString());
 
     if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
@@ -106,8 +106,7 @@ function getListQuestionExamInMonth(req, res){
         return;
     }
 
-
-    if(users.listUsers.size === 0 || infoExamUser.examDoingId.length !== 0){
+    if(!infoExamUser || users.listUsers.size === 0 || infoExamUser.examDoingId.length !== 0){
         res.status(400);
             res.json({
                 message: "Invalid request"
@@ -229,7 +228,7 @@ function getListQuestionExamInMonth(req, res){
     })
 }
 
-function getInfoUserExam(req, res){
+function getInfoUserExam(req, res){ 
     const time = req.swagger.params.time.value.trim();
     const db = req.app.db;
     const userId = ObjectId(req.userId);
@@ -239,7 +238,7 @@ function getInfoUserExam(req, res){
     if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
-            message: "Invalid the format time"
+            message: "Invalid the request"
         })
         return;
     }
@@ -252,7 +251,7 @@ function getInfoUserExam(req, res){
     }
 
     examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {time: time, userId: userId}, option).then((result) => {
-        if(users.listUsers.size === 0 || infoExamUser.time !== time){
+        if(!infoExamUser || users.listUsers.size === 0 || infoExamUser.time !== time ){
             users.insertUser(userId.toString(), result);
         }
         res.status(200);
@@ -296,6 +295,7 @@ function insertNewInfoExamUser(db, userId, time){
         listDidMathExam: [],
         listDidVietnameseExam: []
     }
+
     const option = {
         fields:{
             firstName: 1,
@@ -303,7 +303,7 @@ function insertNewInfoExamUser(db, userId, time){
         }
     }
     examFunction.findOneDB(db, helpers.NAME_DB_USERS,{_id : userId}, option).then((result) => {
-        object.fullName = result.lastName + result.firstName;
+        object.fullName = result.lastName + " " + result.firstName;
         examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
     }).catch((err) => {
         console.log(err)
@@ -379,6 +379,13 @@ function getListExamInMonth(req, res){
         fields:{
             listAnswerRight: 0
         }
+    }
+    if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
+        res.status(400);
+        res.json({
+            message: "Invalid the format time"
+        })
+        return;
     }
     examFunction.findMany(db, helpers.NAME_DB_EXAM, {type: type, time: time}, option).then((result) => {
         res.status(200);
@@ -650,9 +657,11 @@ function verifyAnwser(req, res){
     const listAnswer = req.swagger.params.body.value.listAnswer;
     const userId = ObjectId(req.userId) ;
     const type = req.swagger.params.type.value.trim();
-    const title = req.swagger.params.title.value.trim();
+    const time = moment().format(helpers.FORMAT_DATE); 
+    // const title = req.swagger.params.title.value.trim();
     const db = req.app.db;
     const users = req.app.users;
+    var title = '';
 
     var listCheckedAnswer = [];
     var numberQuestion = 0;
@@ -666,19 +675,22 @@ function verifyAnwser(req, res){
         fields:{
             numberQuestion: 1,
             listAnswerRight: 1,
-            time: 1
+            time: 1,
+            title: 1
         }
     }
 
-    if(infoExamUser.examDoingId === ''){
+    if(!infoExamUser || infoExamUser.examDoingId === ''){
         res.status(400);
         res.json({
-            message: "Exam is submit"
+            message: "Invalid request"
         })
+        return;
     }
-    
+
     examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id : examId}, option).then((result) => {
         numberQuestion = result.numberQuestion;
+        title = result.title;
         result.listAnswerRight.forEach((element, index) => {
             if(listAnswer[index] === element){
                 numberAnswerRight++;
@@ -687,23 +699,32 @@ function verifyAnwser(req, res){
                 listCheckedAnswer.push(helpers.CHECK_FALSE);
             }
         })
-        console.log(infoExamUser);
-
+        if(result.time !== time){
+            res.status(200);
+            res.json({
+                listCheckedAnswer: listCheckedAnswer,
+                numberAnswerRight: numberAnswerRight,
+                numberQuestion: numberQuestion,
+                point: numberAnswerRight * helpers.POINT_BASE
+            })
+            infoExamUser.examDoingId = '';
+            return;
+        }
         examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time: result.time}).then((result) => {
             sumPoint = result.sumPoint + numberAnswerRight * helpers.POINT_BASE;
             if(type === helpers.NAME_MATH_EXAM){
                 numberExam = result.numberMathExam;
-                listDidExam = result.listDidMathExam.push(examId.toString());
+                listDidExam = result.listDidMathExam;
                 listPointExam = result.listMathPointExam;
-                infoExamUser.listDidMathExam = listDidExam;
+                infoExamUser.listDidMathExam.push(examId.toString());
             }else {
                 numberExam = result.numberVietnameseExam;
-                listDidExam = result.listDidVietnameseExam.push(examId.toString());
+                listDidExam = result.listDidVietnameseExam;
                 listPointExam = result.listVietnamesePointExam;
-                infoExamUser.listDidVietnameseExam = listDidExam;
+                infoExamUser.listDidVietnameseExam.push(examId.toString());
             }
 
-            // listDidExam.push(examId.toString());
+            listDidExam.push(examId.toString());
             var item = {
                 title: title,
                 point: numberAnswerRight * helpers.POINT_BASE
