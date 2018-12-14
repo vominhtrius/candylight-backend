@@ -588,7 +588,14 @@ function buyMedal(req, res) {
       } else {
         var pointReward = value.pointReward;   
         var medal = MedalConfig.MEDALS.find(medal => {return medal._id === medalId})
-        
+        if(!medal) {
+			res.status(400);
+			res.json({
+				success: false,
+				message: 'wrong medals'
+			  });
+			return;
+		}
         var isBuyMedal = value.medals ? value.medals.indexOf(medalId) : -1;
         if(isBuyMedal > -1) {
           res.status(400);
@@ -597,13 +604,14 @@ function buyMedal(req, res) {
             message: 'you bought medals before'
           });
         }
-        if(pointReward < medal.point) {
+        else if(pointReward < medal.point) {
           res.status(400);
           res.json({
             success: false,
             message: 'point not enought to buy medal'
           });
-        } else {
+        } 
+		else {
           accountRepo.update( {"_id": new ObjectId(userId)} , {
             $push: { medals: medal._id },
             $set: { pointReward: pointReward - medal.point}
