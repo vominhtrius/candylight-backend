@@ -299,8 +299,8 @@ paths:
           description: time
           required: true
           type: string
-      security:
-        - auth0: []
+      # security:
+      #   - auth0: []
       responses:
         "200":
           description: Success

@@ -110,7 +110,7 @@ function getListQuestionExamInMonth(req, res){
     if(!infoExamUser || users.listUsers.size === 0 || infoExamUser.examDoingId.length !== 0){
         res.status(400);
             res.json({
-                message: "Invalid request"
+                message: "Invalid the request"
             }) 
         return;
     }
@@ -235,7 +235,7 @@ function getInfoUserExam(req, res){
     const userId = ObjectId(req.userId);
     const users = req.app.users;
     var infoExamUser = users.getUser(userId.toString());
-
+    // console.log("user id: " + req.userId)
     if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
         res.status(400);
         res.json({
@@ -253,6 +253,7 @@ function getInfoUserExam(req, res){
 
     examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, {time: time, userId: userId}, option).then((result) => {
         if(!infoExamUser || users.listUsers.size === 0 || infoExamUser.time !== time ){
+            // console.log("insert user")
             users.insertUser(userId.toString(), result);
         }
         res.status(200);
@@ -263,6 +264,7 @@ function getInfoUserExam(req, res){
             listDidVietnameseExam: result.listDidVietnameseExam
         })
     }).catch((err) => {
+        // console.log("insert user")
         insertNewInfoExamUser(db, userId, time);
         const object = {
             userId: ObjectId(userId),
@@ -303,7 +305,10 @@ function insertNewInfoExamUser(db, userId, time){
             lastName: 1,
         }
     }
+    console.log(userId);
+
     examFunction.findOneDB(db, helpers.NAME_DB_USERS,{_id : userId}, option).then((result) => {
+        // console.log("result");
         object.fullName = result.lastName + " " + result.firstName;
         examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
     }).catch((err) => {
