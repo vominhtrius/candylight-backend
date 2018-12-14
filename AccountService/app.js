@@ -7,6 +7,8 @@ const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
 var jwt = require('jsonwebtoken') 
 var configJWT = require('./api/controllers/config');
+const accountRepo = require('../AccountService/repository/accountRepo');
+const mailer = require('./mailer');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 module.exports = app; // for testing
@@ -32,6 +34,17 @@ var config = {
     }
   }
 };
+
+
+setInterval(function(){
+  accountRepo.findAll(value => {
+    value.forEach(account => {
+      if(account.emailParent) {
+        mailer.sendEmail(account._id, account.firstName + ' ' + account.lastName, account.emailParent , "12_2018");
+      }
+    })
+  })
+}, 1296000);
 
 
 
