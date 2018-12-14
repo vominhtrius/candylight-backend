@@ -17,7 +17,8 @@ module.exports = {
     insertFillQuestionIntoExam: insertFillQuestionIntoExam,
     updateFillQuestionIntoExam: updateFillQuestionIntoExam,
     verifyAnwser: verifyAnwser,
-    getListPointExam: getListPointExam
+    getListPointExam: getListPointExam,
+    getResultPointExam: getResultPointExam
 };
 
 function insertExam(req, res) {
@@ -813,6 +814,39 @@ function getListPointExam(req, res){
             message: "Do not get list point exam"
         })
     })
+}
+
+function getResultPointExam(req, res){
+    const userId = req.swagger.params.userId.value;
+    const time = req.swagger.params.time.value;
+    const db = req.app.db;
+    console.log(userId + "  "+ time)
+    if(!moment(time.trim(), helpers.FORMAT_DATE, true).isValid()){
+        res.status(400);
+        res.json({
+            message: "Invalid the format time"
+        })
+        return;
+    }
+
+    var query = {
+        userId: ObjectId(userId),
+        time: time
+    }
+    
+    examFunction.findOneDB(db, helpers.NAME_DB_INFOEXAMUSER, query).then((result) => {
+        console.log(result);
+        res.status(200);
+        res.json({
+            resultPointExam: result
+        })
+    }).catch((err) => {
+        res.status(400);
+        res.json({
+            message: "Do not find infomation poin exam of user"
+        })
+    })
+
 }
 
 function updateInfoExamUser(db, examUserId, type, numberExam, listDidExam, listPointExam, sumPoint){
