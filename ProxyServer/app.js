@@ -12,7 +12,8 @@ const chatServiceRoute = require('./api/routes/chat-service.js');
 const learningServiceRoute = require('./api/routes/learning-service.js');
 const exerciseServiceRoute = require('./api/routes/exercise-service.js');
 const examinationServiceRoute = require('./api/routes/examination-service.js');
-
+// const host = '127.0.0.1';
+require('dotenv').config();
 ///////////////////////////////////////////
 var app = express();
 app.server = http.createServer(app);
@@ -43,7 +44,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
 ///////////////////////////////////////////
-app.server.listen(process.env.PORT || 8000, '103.114.107.16', () => {
+console.log(process.env.host)
+app.server.listen(process.env.PORT || 8000, process.env.host, () => {
     console.log(`App running on port: ${app.server.address().port}`);
     console.log(`App running on host: ${app.server.address().address}`);
 });
