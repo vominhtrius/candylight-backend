@@ -100,22 +100,30 @@ function getListQuestionsOfTopic(req, res){
     questionFunction.findOneDB(db, helpers.NAME_DB_TOPICS, {_id: topicId}).then((result) => {
         Promise.all([
             questionFunction.aggregateDB(db, helpers.NAME_DB_CHOICEQUESTION_EXERCISE, queryChoiceQuesion).then((result) => {
+                // console.log('choice question')
+                // console.log(result)
                 for(var i = 0; i < result.length; i++){
                     result[i].type = helpers.TYPE_CHOICE_QUESTION;
                 }
                 listChoiceQuestions = result;
             }).catch((err) => {
+                // console.log("errr")
+                // console.log(err);
                 res.status(400);
                 res.json({
                     message: err
                 })
             }),
             questionFunction.aggregateDB(db, helpers.NAME_DB_FILLQUESTION_EXERCISE, queryFillQuesion).then((result) => {
+                // console('fill question')
+                // console.log(result)
                 for(var i = 0; i < result.length; i++){
                     result[i].type = helpers.TYPE_FILL_QUESTION;
                 }
                 listFillQuestions = result;;
             }).catch((err) => {
+                // console.log('error fill question')
+
                 res.status(400);
                 res.json({
                     message: err
