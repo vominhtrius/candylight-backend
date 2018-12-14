@@ -54,10 +54,6 @@ function insertQuestionForGameArcher(req, res){
         })
         return;
     }
-    
-    // if(!body.id){
-    //     body.id = 0;
-    // }
 
     questionFunction.countDocument(db, helpers.NAME_DB_QUESTION_GAME_ARCHER, {idGame:idGame}).then((result) => {
         body.id = result;
@@ -87,11 +83,6 @@ function insertQuestionForGameFindTreasure(req, res){
         })
         return;
     }
-    
-    // if(!body.id){
-    //     body.id = 0;
-    // }
-
     questionFunction.countDocument(db, helpers.NAME_DB_QUESTION_GAME_FINDTREASURE, {idGame:idGame}).then((result) => {
         body.id = result;
         body.idGame = idGame;
