@@ -55,20 +55,23 @@ function insertQuestionForGameArcher(req, res){
         return;
     }
     
-    if(!body.id){
-        body.id = 0;
-    }
-    body.idGame = idGame;
-    
-    questionFunction.insertOneDB(db, helpers.NAME_DB_QUESTION_GAME_ARCHER, body).then((result) => {
-        res.status(200);
-        res.json({
-            message: "Insert question to DB success"
-        })
-    }).catch((err) => {
-        res.status(400);
-        res.json({
-            message: "Insert question to DB failed"
+    // if(!body.id){
+    //     body.id = 0;
+    // }
+
+    questionFunction.countDocument(db, helpers.NAME_DB_QUESTION_GAME_ARCHER, {idGame:idGame}).then((result) => {
+        body.id = result;
+        body.idGame = idGame;
+        questionFunction.insertOneDB(db, helpers.NAME_DB_QUESTION_GAME_ARCHER, body).then((result) => {
+            res.status(200);
+            res.json({
+                message: "Insert question to DB success"
+            })
+        }).catch((err) => {
+            res.status(400);
+            res.json({
+                message: "Insert question to DB failed"
+            })
         })
     })
 }
@@ -85,20 +88,23 @@ function insertQuestionForGameFindTreasure(req, res){
         return;
     }
     
-    if(!body.id){
-        body.id = 0;
-    }
-    body.idGame = idGame;
-    
-    questionFunction.insertOneDB(db, helpers.NAME_DB_QUESTION_GAME_FINDTREASURE, body).then((result) => {
-        res.status(200);
-        res.json({
-            message: "Insert question to DB success"
-        })
-    }).catch((err) => {
-        res.status(400);
-        res.json({
-            message: "Insert question to DB failed"
+    // if(!body.id){
+    //     body.id = 0;
+    // }
+
+    questionFunction.countDocument(db, helpers.NAME_DB_QUESTION_GAME_FINDTREASURE, {idGame:idGame}).then((result) => {
+        body.id = result;
+        body.idGame = idGame;
+        questionFunction.insertOneDB(db, helpers.NAME_DB_QUESTION_GAME_FINDTREASURE, body).then((result) => {
+            res.status(200);
+            res.json({
+                message: "Insert question to DB success"
+            })
+        }).catch((err) => {
+            res.status(400);
+            res.json({
+                message: "Insert question to DB failed"
+            })
         })
     })
 }

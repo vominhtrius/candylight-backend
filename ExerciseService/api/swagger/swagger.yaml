@@ -3,7 +3,8 @@ info:
   version: "0.0.1"
   title: Exercise Service
 # during dev, should point to your local machine
-host: 103.114.107.16:8004
+# host: 103.114.107.16:8004
+host: 127.0.0.1:8004
 # basePath prefixes all resource paths 
 basePath: /api/exercise
 
@@ -685,9 +686,6 @@ definitions:
       question:
         description: content of question
         type: string
-      id: 
-        description: id of question
-        type: integer
       answer:
         description: answer of question
         type: string
