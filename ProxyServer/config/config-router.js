@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 hostAccountService = process.env.hostAccountService;
 hostChatService = process.env.hostChatService;
 hostLearningService = process.env.hostLearningService;
