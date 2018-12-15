@@ -38,6 +38,8 @@ function getListQuestionsOfTopic(req, res){
         numberQuestion = helpers.NUMBERQUESTION_TOPIC;
     }
 
+    console.log(topicId);
+    
     var rand = Math.floor(Math.random() * (numberQuestion - 1)) + 1;
     var listChoiceQuestions = [];
     var listFillQuestions = [];
@@ -392,6 +394,8 @@ function getResultExerciseOfTopic(req, res){
         }
     }
     questionFunction.findOneDB(db, helpers.NAME_DB_USERS, {_id: ObjectId(userId)}, option).then((result) => {
+        console.log(result);
+
         const point = result.pointReward + sessionObject.numberAnswerRight * helpers.POINT_BASE;
         var update = {
             $set:{
