@@ -179,7 +179,7 @@ class Connection {
                             }
                         }else{
                             var clientConnectionTmp = this.listUsers.get(userId);
-                            if(clientConnection){
+                            if(clientConnectionTmp){
                                 if(clientConnectionTmp.isOnline === false){
                                     // console.log("user: " + userId + " reconnect")
                                     clientConnectionTmp.ws = ws;
