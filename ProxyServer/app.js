@@ -20,7 +20,7 @@ app.server = http.createServer(app);
 
 /////////////////////////////////////////
 
-const apiProxy = httpProxy.createProxyServer();
+const apiProxy = httpProxy.createProxyServer({});
 
 ////////////////////////////////////////////
 //////////////////////////////////////////
@@ -41,7 +41,9 @@ examinationServiceRoute(app, apiProxy);
 
 ///////////////////////////////////////
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 ///////////////////////////////////////////
 console.log(process.env.host)
