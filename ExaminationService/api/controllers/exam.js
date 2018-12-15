@@ -380,7 +380,6 @@ function getListExamInMonth(req, res){
     const type = req.swagger.params.type.value.trim();
     const time = req.swagger.params.time.value.trim();
     const db = req.app.db;
-
     const option = {
         fields:{
             listAnswerRight: 0
