@@ -4,7 +4,7 @@ info:
   title: Examination Service
 # during dev, should point to your local machine
 host: 103.114.107.16:8005
-# host: 127.0.0.1:8005
+#host: 127.0.0.1:8005
 # basePath prefixes all resource paths 
 basePath: /api/examination
 securityDefinitions:
