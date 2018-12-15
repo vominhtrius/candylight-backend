@@ -179,12 +179,14 @@ class Connection {
                             }
                         }else{
                             var clientConnectionTmp = this.listUsers.get(userId);
-                            if(clientConnectionTmp.isOnline === false){
-                                // console.log("user: " + userId + " reconnect")
-                                clientConnectionTmp.ws = ws;
-                                clientConnectionTmp.isOnline = true; 
-                                if(userId !== this.idGVTV.toString()){
-                                    this.handleSendUserIdOnline(userId);
+                            if(clientConnection){
+                                if(clientConnectionTmp.isOnline === false){
+                                    // console.log("user: " + userId + " reconnect")
+                                    clientConnectionTmp.ws = ws;
+                                    clientConnectionTmp.isOnline = true; 
+                                    if(userId !== this.idGVTV.toString()){
+                                        this.handleSendUserIdOnline(userId);
+                                    }
                                 }
                             }
                         }
@@ -199,10 +201,12 @@ class Connection {
             ws.on('close', (msg) => {
                 // console.log("user: " + userId + " close connect");
                 var clientConnection = this.listUsers.get(userId);
-                clientConnection.isOnline = false;
-                // this.remove(this.listUsersOnline, userId);
-                this.listUsersOnline.delete(userId);
-                this.handleSendUserIdOffline(userId);
+                if(clientConnection){
+                    clientConnection.isOnline = false;
+                    // this.remove(this.listUsersOnline, userId);
+                    this.listUsersOnline.delete(userId);
+                    this.handleSendUserIdOffline(userId);
+                }
             })
         })
     }
