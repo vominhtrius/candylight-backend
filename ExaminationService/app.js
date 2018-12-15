@@ -19,6 +19,7 @@ var config = {
   appRoot: __dirname, // required config
   swaggerSecurityHandlers: {
     auth0: function (req, authOrSecDef, scopesOrApiKey, next) {
+
       if(process.env.REQ_AUTH === "false" || req.path().indexOf('/api/examination/list_point_exam') || 
       req.path().indexOf('/api/examination/result_point_exam')) {
         next();
