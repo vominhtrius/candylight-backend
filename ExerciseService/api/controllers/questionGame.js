@@ -104,30 +104,30 @@ function getListQuestionsOfGameQuiz (req, res){
     const idGame = req.swagger.params.id_game.value;
     const numberQuestion = req.swagger.params.numberQuestion.value;
     const db = req.app.db;
-    const userId = req.userId;
-    const users = req.app.users;
-    var user = users.getUserPlayGame(userId);
+    // const userId = req.userId;
+    // const users = req.app.users;
+    // var user = users.getUserPlayGame(userId);
 
-    if(!user){
-        var listGamePlaying = [];
-        listGamePlaying.push(idGame);
-        var object = {
-            listGamePlaying: listGamePlaying,
-        }
-        users.insertUserPlayGame(userId, object);    
-        user = users.getUserPlayGame(userId);
-    }else{
-        if(user.listGamePlaying.indexOf(idGame) !== -1){
-            res.status(400);
-            res.json({
-                message: "Game is playing"
-            })
-            return;
-        }else{
-            user.listGamePlaying.push(idGame);
-            users.insertUserPlayGame(userId, user);
-        }
-    }
+    // if(!user){
+    //     var listGamePlaying = [];
+    //     listGamePlaying.push(idGame);
+    //     var object = {
+    //         listGamePlaying: listGamePlaying,
+    //     }
+    //     users.insertUserPlayGame(userId, object);    
+    //     user = users.getUserPlayGame(userId);
+    // }else{
+    //     if(user.listGamePlaying.indexOf(idGame) !== -1){
+    //         res.status(400);
+    //         res.json({
+    //             message: "Game is playing"
+    //         })
+    //         return;
+    //     }else{
+    //         user.listGamePlaying.push(idGame);
+    //         users.insertUserPlayGame(userId, user);
+    //     }
+    // }
 
     const query = [
         {
@@ -161,29 +161,29 @@ function getListQuestionsOfGameArcher (req, res){
     const idGame = req.swagger.params.id_game.value;
     const numberQuestion = req.swagger.params.numberQuestion.value;
     const db = req.app.db;
-    const userId = req.userId;
-    const users = req.app.users;
-    var user = users.getUserPlayGame(userId);
-    if(!user){
-        var listGamePlaying = [];
-        listGamePlaying.push(idGame);
-        var object = {
-            listGamePlaying: listGamePlaying,
-        }
-        users.insertUserPlayGame(userId, object);    
-        user = users.getUserPlayGame(userId);
-    }else{
-        if(user.listGamePlaying.indexOf(idGame) !== -1){
-            res.status(400);
-            res.json({
-                message: "Game is playing"
-            })
-            return;
-        }else{
-            user.listGamePlaying.push(idGame);
-            users.insertUserPlayGame(userId, user);
-        }
-    }
+    // const userId = req.userId;
+    // const users = req.app.users;
+    // var user = users.getUserPlayGame(userId);
+    // if(!user){
+    //     var listGamePlaying = [];
+    //     listGamePlaying.push(idGame);
+    //     var object = {
+    //         listGamePlaying: listGamePlaying,
+    //     }
+    //     users.insertUserPlayGame(userId, object);    
+    //     user = users.getUserPlayGame(userId);
+    // }else{
+    //     if(user.listGamePlaying.indexOf(idGame) !== -1){
+    //         res.status(400);
+    //         res.json({
+    //             message: "Game is playing"
+    //         })
+    //         return;
+    //     }else{
+    //         user.listGamePlaying.push(idGame);
+    //         users.insertUserPlayGame(userId, user);
+    //     }
+    // }
 
     const query = [
         {
@@ -217,29 +217,29 @@ function getListQuestionsOfGameFindTreasure(req, res){
     const idGame = req.swagger.params.id_game.value;
     const numberQuestion = req.swagger.params.numberQuestion.value;
     const db = req.app.db;
-    const userId = req.userId;
-    const users = req.app.users;
-    var user = users.getUserPlayGame(userId);
-    if(!user){
-        var listGamePlaying = [];
-        listGamePlaying.push(idGame);
-        var object = {
-            listGamePlaying: listGamePlaying,
-        }
-        users.insertUserPlayGame(userId, object);    
-        user = users.getUserPlayGame(userId);
-    }else{
-        if(user.listGamePlaying.indexOf(idGame) !== -1){
-            res.status(400);
-            res.json({
-                message: "Game is playing"
-            })
-            return;
-        }else{
-            user.listGamePlaying.push(idGame);
-            users.insertUserPlayGame(userId, user);
-        }
-    }
+    // const userId = req.userId;
+    // const users = req.app.users;
+    // var user = users.getUserPlayGame(userId);
+    // if(!user){
+    //     var listGamePlaying = [];
+    //     listGamePlaying.push(idGame);
+    //     var object = {
+    //         listGamePlaying: listGamePlaying,
+    //     }
+    //     users.insertUserPlayGame(userId, object);    
+    //     user = users.getUserPlayGame(userId);
+    // }else{
+    //     if(user.listGamePlaying.indexOf(idGame) !== -1){
+    //         res.status(400);
+    //         res.json({
+    //             message: "Game is playing"
+    //         })
+    //         return;
+    //     }else{
+    //         user.listGamePlaying.push(idGame);
+    //         users.insertUserPlayGame(userId, user);
+    //     }
+    // }
 
     const query = [
         {
