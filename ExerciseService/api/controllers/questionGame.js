@@ -147,9 +147,9 @@ function getListQuestionsOfGameQuiz (req, res){
         })
     }).catch((err) => {
         console.log(err);
-        var object = remove(user.listGamePlaying, idGame);
-        user.listGamePlaying = object;
-        users.insertUserPlayGame(userId, user);
+        // var object = remove(user.listGamePlaying, idGame);
+        // user.listGamePlaying = object;
+        // users.insertUserPlayGame(userId, user);
         res.status(400);
         res.json({
             message: "Do not get list question"
@@ -203,9 +203,9 @@ function getListQuestionsOfGameArcher (req, res){
         })
     }).catch((err) => {
         console.log(err);
-        var object = remove(user.listGamePlaying, idGame);
-        user.listGamePlaying = object;
-        users.insertUserPlayGame(userId, user);
+        // var object = remove(user.listGamePlaying, idGame);
+        // user.listGamePlaying = object;
+        // users.insertUserPlayGame(userId, user);
         res.status(400);
         res.json({
             message: "Do not get list question"
@@ -259,9 +259,9 @@ function getListQuestionsOfGameFindTreasure(req, res){
         })
     }).catch((err) => {
         console.log(err);
-        var object = remove(user.listGamePlaying, idGame);
-        user.listGamePlaying = object;
-        users.insertUserPlayGame(userId, user);
+        // var object = remove(user.listGamePlaying, idGame);
+        // user.listGamePlaying = object;
+        // users.insertUserPlayGame(userId, user);
         res.status(400);
         res.json({
             message: "Do not get list question"
