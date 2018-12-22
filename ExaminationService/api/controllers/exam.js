@@ -81,7 +81,7 @@ function insertExam(req, res) {
             })
         }
     }).catch((err) =>{
-        console.log(err);
+        // console.log(err);
         res.status(400);
         res.json({
             message: err
@@ -137,18 +137,18 @@ function getListQuestionExamInMonth(req, res){
         }
     }
 
-    infoExamUser.examDoingId = examId.toString();
-    users.insertUser(userId.toString(), infoExamUser);
-    var update = {
-        $set:{
-            examDoingId: examId.toString(),
-        }
-    }
+    // infoExamUser.examDoingId = examId.toString();
+    // users.insertUser(userId.toString(), infoExamUser);
+    // var update = {
+    //     $set:{
+    //         examDoingId: examId.toString(),
+    //     }
+    // }
 
-    examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time :time}, update).then((result) => {
-    }).catch((err) => {
-        console.log(err);
-    })
+    // examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time :time}, update).then((result) => {
+    // }).catch((err) => {
+    //     console.log(err);
+    // })
 
     examFunction.findOneDB(db, helpers.NAME_DB_EXAM, {_id: examId}).then((resultExam) => {
         const query = [
@@ -207,18 +207,30 @@ function getListQuestionExamInMonth(req, res){
                         res.json({
                             listQuestion: resultExam.listQuestion
                         })
+                        infoExamUser.examDoingId = examId.toString();
+                        users.insertUser(userId.toString(), infoExamUser);
+                        var update = {
+                            $set:{
+                                examDoingId: examId.toString(),
+                            }
+                        }
+                    
+                        examFunction.findOneAndUpdateDB(db, helpers.NAME_DB_INFOEXAMUSER, {userId: userId, time :time}, update).then((result) => {
+                        }).catch((err) => {
+                            console.log(err);
+                        })
                     })
                 }
             }).catch((err) => {
                 res.status(400);
                 res.json({
-                    message: err
+                    message: "Do no enought question"
                 })
             })
         }).catch((err)=>{
             res.status(400);
             res.json({
-                message: err
+                message: "Do no enought question"
             })
         })
     }).catch((err) => {
@@ -264,7 +276,7 @@ function getInfoUserExam(req, res){
             listDidVietnameseExam: result.listDidVietnameseExam
         })
     }).catch((err) => {
-        // console.log("insert user")
+        // console.log("insert new user")
         insertNewInfoExamUser(db, userId, time);
         const object = {
             userId: ObjectId(userId),
@@ -305,14 +317,13 @@ function insertNewInfoExamUser(db, userId, time){
             lastName: 1,
         }
     }
-    console.log(userId);
 
     examFunction.findOneDB(db, helpers.NAME_DB_USERS,{_id : userId}, option).then((result) => {
         // console.log("result");
         object.fullName = result.lastName + " " + result.firstName;
         examFunction.insertOneDB(db, helpers.NAME_DB_INFOEXAMUSER, object);
     }).catch((err) => {
-        console.log(err)
+        console.log("err:" + err)
     })
 }
 
