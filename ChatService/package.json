@@ -13,7 +13,7 @@
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
-    "mongodb": "^3.1.10",
+    "mongodb": "^3.1.13",
     "nodemon": "^1.18.8",
     "swagger-express-mw": "^0.1.0",
     "ws": "^6.1.2"
